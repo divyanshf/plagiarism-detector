@@ -1,4 +1,9 @@
 import re
+from nltk import PorterStemmer
+import string
+
+ps = PorterStemmer()
+puncs = string.punctuation
 
 
 class FileProcessor:
@@ -29,8 +34,40 @@ class FileProcessor:
         self.file = re.sub(patternSingle, '\n', self.file)
         self.file = re.sub(patternMultiple, '', self.file)
 
+    # Tokenize the file
+    def tokenizeFile(self):
+        terms = self.file.split()
+        self.file = ''
+        for term in terms:
+            processedTerms = self.processTerm(term)
+            for processedTerm in processedTerms:
+                self.file += processedTerm + ' '
+
+    # Split words by  punctuations or digits
+    def processTerm(self, word):
+        processed = []
+        currentTerm = ""
+
+        # Remove punctuations, operators and digits
+        for ch in word:
+            if ch in puncs or ch.isdigit():
+                if currentTerm != "":
+                    currentTerm = ps.stem(currentTerm)
+                    processed.append(currentTerm)
+                currentTerm = ""
+            else:
+                currentTerm += ch
+
+        if(currentTerm != ""):
+            currentTerm = ps.stem(currentTerm)
+            processed.append(currentTerm)
+
+        return processed
+
     # Pre-processinng the file
     def preprocess(self, document, removeComment):
         self.file = document.read()
         self.processComments(removeComment)
         self.readFile(document)
+        self.tokenizeFile()
+        print(self.file)
