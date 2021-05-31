@@ -1,4 +1,5 @@
 import argparse
+from filehelper.FileProcessor import FileProcessor
 
 parser = argparse.ArgumentParser()
 
@@ -11,24 +12,33 @@ parser.add_argument(
     '--path', '-p', help='The path of the file you want to check.')
 
 
+# Initialize
+def processDocument(path, rcomment):
+    document = open(path)
+    fp = FileProcessor()
+    fp.preprocess(document, rcomment)
+    document.close()
+
+
+# Driver function
 def main():
     arguments = parser.parse_args()
-    document = None
 
     # CLI Version required
     if arguments.version:
         print('version=0.1.0')
+        if arguments.rcomment == False and arguments.path == None:
+            return
 
     # If path is not provided in the arguments
     if arguments.path == None:
-        path = input('Path : ')
+        path = input('Path to file : ')
 
     # Check for path validity
     try:
-        document = open(arguments.path or path).read()
-        print(document)
-    except:
-        print('Invalid path detected!')
+        processDocument(arguments.path or path, arguments.rcomment)
+    except Exception as ex:
+        print(ex)
         return
 
 
