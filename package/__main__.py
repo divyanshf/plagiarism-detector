@@ -1,7 +1,10 @@
 import argparse
 import glob
 import os
-from filehelper.FileProcessor import FileProcessor
+
+from numpy.core.fromnumeric import _amax_dispatcher
+from filehelper.FileProcessor import FileStructure
+from irehelper.IREProcessor import IREProcessor
 
 parser = argparse.ArgumentParser()
 
@@ -15,9 +18,14 @@ parser.add_argument(
 
 
 # Initialize
-def processDocument(path, pcomment):
+def processDocument(path, pcomment, primary=False):
     document = open(path, 'r')
-    fp = FileProcessor(document, pcomment)
+    filename = ''
+    if primary:
+        filename = 'Primary File'
+    else:
+        _, filename = os.path.split(path)
+    fp = FileStructure(filename, document, pcomment)
     document.close()
     return fp
 
@@ -37,6 +45,14 @@ def pickFolder(pcomment):
     return files
 
 
+# Latent Semantic Analysis
+def lsaSimilarity(files, pcomment):
+    irp = IREProcessor(pcomment)
+    # tdMatrixCode = irp.createTermDocMatrix(files)
+    tdMatrixCode = irp.createTermDocumentMatrixCode(files)
+    # tdMatrixCode = irp.applyTNCTermWeighting(tdMatrixCode)
+
+
 # Driver function
 def main():
     arguments = parser.parse_args()
@@ -51,16 +67,17 @@ def main():
     if arguments.path == None:
         path = input('Path to file : ')
 
-    # User's choice for checking among files or the internet
-    option = int(input('Your choice : '))
-
     # Process the documents
     try:
         files = []
         files.append(processDocument(
-            arguments.path or path, arguments.pcomment))
+            arguments.path or path, arguments.pcomment, primary=True))
+
+        # User's choice for checking among files or the internet
+        option = int(input('Your choice : '))
         if option == 1:
             files = files + pickFolder(arguments.pcomment)
+            lsaSimilarity(files, arguments.pcomment)
         else:
             print('GOOOOOOOGLE')
     except Exception as ex:

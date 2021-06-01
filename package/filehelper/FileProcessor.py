@@ -7,11 +7,12 @@ ps = PorterStemmer()
 puncs = string.punctuation
 
 
-class FileProcessor:
-    def __init__(self, document, processComment):
+class FileStructure:
+    def __init__(self, name, document, processComment):
+        self.filename = name
         self.file = None
         self.lines = []
-        self.comments = []
+        self.comments = ''
         self.preprocess(document, processComment)
 
     # Read the file and convert it into a list of lines
@@ -27,19 +28,21 @@ class FileProcessor:
 
     # Processing comments assuming the comment characters dont appear inside double quotes or single quotes
     def processComments(self, processComment):
+        comments = []
         patternSingle = re.compile('//.*\n')
         patternMultiple = re.compile('/\*.*\*/', re.DOTALL)
 
         # Store comments if required
         if processComment == True:
-            self.comments = re.findall(
+            comments = re.findall(
                 patternSingle, self.file) + re.findall(patternMultiple, self.file)
-            self.comments = list(
+            comments = list(
                 map(lambda x: x.replace('//', '').replace('/*', '').replace('*/', '').replace('\n', ' ').strip(), self.comments))
 
         # Removing comments from the original file
         self.file = re.sub(patternSingle, '\n', self.file)
         self.file = re.sub(patternMultiple, '', self.file)
+        self.comments = ''.join(comments)
 
     # Tokenize the file
     def tokenizeFile(self):
