@@ -1,3 +1,4 @@
+from os import remove
 import re
 from nltk import PorterStemmer
 import string
@@ -7,11 +8,14 @@ puncs = string.punctuation
 
 
 class FileProcessor:
-    def __init__(self):
+    def __init__(self, document, processComment):
         self.file = None
         self.lines = []
         self.comments = []
+        self.preprocess(document, processComment)
 
+    # Read the file and convert it into a list of lines
+    # ??? not required ???
     def readFile(self, document):
         self.lines = self.file.split('\n')
 
@@ -22,15 +26,18 @@ class FileProcessor:
         self.lines = list(map(lambda x: x.lstrip(), self.lines))
 
     # Processing comments assuming the comment characters dont appear inside double quotes or single quotes
-    def processComments(self, removeComment):
+    def processComments(self, processComment):
         patternSingle = re.compile('//.*\n')
         patternMultiple = re.compile('/\*.*\*/', re.DOTALL)
 
         # Store comments if required
-        if removeComment == False:
+        if processComment == True:
             self.comments = re.findall(
                 patternSingle, self.file) + re.findall(patternMultiple, self.file)
+            self.comments = list(
+                map(lambda x: x.replace('//', '').replace('/*', '').replace('*/', '').replace('\n', ' ').strip(), self.comments))
 
+        # Removing comments from the original file
         self.file = re.sub(patternSingle, '\n', self.file)
         self.file = re.sub(patternMultiple, '', self.file)
 
@@ -65,9 +72,8 @@ class FileProcessor:
         return processed
 
     # Pre-processinng the file
-    def preprocess(self, document, removeComment):
+    def preprocess(self, document, processComment):
         self.file = document.read()
-        self.processComments(removeComment)
-        self.readFile(document)
+        self.processComments(processComment)
+        # self.readFile(document)
         self.tokenizeFile()
-        print(self.file)
