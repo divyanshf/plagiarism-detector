@@ -2,12 +2,16 @@ from operator import index
 import numpy as np
 import pandas as pd
 import math as m
-from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 
 
 class IREProcessor:
     def __init__(self, pcomment):
         self.pcomment = pcomment
+
+    def createVectorizerImplementation(self, corpus):
+        vectorizer = TfidfVectorizer()
+        return vectorizer.fit_transform(corpus)
 
     # Create a term by document matrix
     def createTermDocumentMatrix(self, corpus):
@@ -55,15 +59,40 @@ class IREProcessor:
 
         return weightedDict
 
-    def calculateSimilarity(self, freqList):
-        matrix = []
+    # Decompose the td-matrix using SVD
+    def calculateSVD(self, matrix):
+        U, sigma, Vt = np.linalg.svd(matrix)
+        sigma = np.diag(sigma)
+        return U, sigma, Vt
 
+    # Reduce dimension of the matrix
+    def reduceDimensions(self, k, matrix):
+        reducedMatrix = matrix[:, :k]
+        return reducedMatrix
+
+    # Calculate the similarity
+    def calculateSimilarity(self, freqList):
         features = []
+
+        # Extract features
         for key, _ in freqList[0].items():
             features.append(key)
 
+        # Numpy matrix out of the freqlist
+        matrix = np.empty((0, len(features)))
         for freq in freqList:
             dictList = [value for _, value in freq.items()]
-            matrix.append(dictList)
-        df = pd.DataFrame(np.array(matrix), columns=features)
-        print(df)
+            matrix = np.vstack([matrix, dictList])
+
+        matrix = matrix.transpose()
+        U, sigma, Vt = self.calculateSVD(matrix)
+
+        # Reducing dimensions to the shape of sigma
+        U = self.reduceDimensions(sigma.shape[0], U)
+        V = self.reduceDimensions(sigma.shape[0], Vt.transpose())
+        # reducedMatrix = U @ sigma @ (V.transpose())
+        # result = (reducedMatrix.transpose())[0] @ reducedMatrix
+        val = V.dot(sigma)
+        result = val.dot(val.transpose())
+        # print(result[0, 1:])
+        print(result)
