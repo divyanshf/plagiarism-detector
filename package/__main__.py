@@ -1,8 +1,7 @@
 import argparse
 import glob
 import os
-
-from numpy.core.fromnumeric import _amax_dispatcher
+import pandas as pd
 from filehelper.FileProcessor import FileStructure
 from irehelper.IREProcessor import IREProcessor
 
@@ -48,9 +47,10 @@ def pickFolder(pcomment):
 # Latent Semantic Analysis
 def lsaSimilarity(files, pcomment):
     irp = IREProcessor(pcomment)
-    # tdMatrixCode = irp.createTermDocMatrix(files)
-    tdMatrixCode = irp.createTermDocumentMatrixCode(files)
-    # tdMatrixCode = irp.applyTNCTermWeighting(tdMatrixCode)
+    corpusCode = [doc.file for doc in files]
+    tdMatrixCode = irp.createTermDocumentMatrix(corpusCode)
+    tdMatrixCode = irp.applyTNCWeighting(tdMatrixCode)
+    similarity = irp.calculateSimilarity(tdMatrixCode)
 
 
 # Driver function
