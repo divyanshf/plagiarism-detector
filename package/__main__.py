@@ -48,9 +48,16 @@ def pickFolder(pcomment):
 def lsaSimilarity(files, pcomment):
     irp = IREProcessor(pcomment)
     corpusCode = [doc.file for doc in files]
-    # tdMatrixCode = irp.createVectorizerImplementation(corpusCode)
+
+    # Built in tf-idf vectorizer
+    tdMatrixCode = irp.createVectorizerImplementation(corpusCode)
+    tdMatrixCode = tdMatrixCode.toarray()
+    similarity = irp.calculateSimilarity(tdMatrixCode)
+
+    # Custom tf-idf weighing
     tdMatrixCode = irp.createTermDocumentMatrix(corpusCode)
     tdMatrixCode = irp.applyTNCWeighting(tdMatrixCode)
+
     similarity = irp.calculateSimilarity(tdMatrixCode)
 
 
