@@ -1,4 +1,3 @@
-from os import remove
 import re
 from nltk import PorterStemmer
 import string
@@ -37,12 +36,13 @@ class FileStructure:
             comments = re.findall(
                 patternSingle, self.file) + re.findall(patternMultiple, self.file)
             comments = list(
-                map(lambda x: x.replace('//', '').replace('/*', '').replace('*/', '').replace('\n', ' ').strip(), self.comments))
+                map(lambda x: x.replace('//', '').replace('/*', '').replace('*/', '').replace('\n', ' ').strip(), comments))
 
         # Removing comments from the original file
         self.file = re.sub(patternSingle, '\n', self.file)
         self.file = re.sub(patternMultiple, '', self.file)
-        self.comments = ''.join(comments)
+        self.comments = ''.join(comments).lower()
+        # print(comments)
 
     # Tokenize the file
     def tokenizeFile(self):

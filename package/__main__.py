@@ -1,6 +1,8 @@
 import argparse
 import glob
+from operator import index
 import os
+from numpy.core.numeric import indices
 import pandas as pd
 from .FileProcessor import FileStructure
 from .IREProcessor import IREProcessor
@@ -44,16 +46,36 @@ def pickFolder(pcomment):
     return files
 
 
+# Process corpus
+def processCorpus(corpus, filenames, globalForm):
+    irp = IREProcessor()
+
+    # print(corpus)
+    tdMatrix = irp.createTermDocumentMatrix(corpus)
+    # df = pd.DataFrame(tdMatrix)
+    # print(df)
+
+    tdMatrix = irp.applyWeighting(tdMatrix, globalForm)
+    # df = pd.DataFrame(tdMatrix)
+    # print(df)
+
+    similarity = irp.calculateSimilarity(tdMatrix)
+    df = pd.DataFrame(similarity[0, :], index=filenames, columns=[''])
+    print(df)
+
+
 # Latent Semantic Analysis
 def lsaSimilarity(files, pcomment):
-    irp = IREProcessor(pcomment)
     corpusCode = [doc.file for doc in files]
     corpusComment = [doc.comments for doc in files]
+    filenames = [doc.filename for doc in files]
 
-    tdMatrixCode = irp.createTermDocumentMatrix(corpusCode)
-    tdMatrixCode = irp.applyTNCWeighting(tdMatrixCode)
+    # Source code without comments
+    processCorpus(corpusCode, filenames, 'normal')
 
-    similarity = irp.calculateSimilarity(tdMatrixCode)
+    # Comments
+    if pcomment:
+        processCorpus(corpusComment, filenames, 'idf')
 
 
 # Driver function

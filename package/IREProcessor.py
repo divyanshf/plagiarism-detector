@@ -1,14 +1,11 @@
-from operator import index
 import numpy as np
+from numpy.core.numeric import NaN
 import pandas as pd
 import math as m
-from sklearn.feature_extraction.text import TfidfVectorizer
+np.seterr(divide='ignore', invalid='ignore')
 
 
 class IREProcessor:
-    def __init__(self, pcomment):
-        self.pcomment = pcomment
-
     # Create a term by document matrix
     def createTermDocumentMatrix(self, corpus):
         # Create a set of terms
@@ -30,14 +27,15 @@ class IREProcessor:
         return freqList
 
     # Apply TNC weigthing on the t-d matrix
-    def applyTNCWeighting(self, freqList):
+    def applyWeighting(self, freqList, globalForm):
         tncList = []
         for i in range(len(freqList)):
             type(freqList[i])
             tncList.append(self.computeLocalWeight(
                 freqList[i], freqList))
 
-        globalWeights = self.computeGlobalNormalWeights(freqList)
+        globalWeights = self.computeGlobalNormalWeights(
+            freqList) if globalForm == 'normal' else self.computeGlobalWeights(freqList)
         globalWeights = list(globalWeights.items())
 
         tncList, _ = self.convertDictToMatrix(tncList)
@@ -51,10 +49,11 @@ class IREProcessor:
         weightedDict = {}
         lenDoc = sum(freq.values())
 
-        # Local Term frequency weighting and Global Normal weighting
-        # (fij / total terms) * (1 / sqrt(sumj((fij)^2)))
         for token, count in freq.items():
-            weightedDict[token] = (count / lenDoc)
+            try:
+                weightedDict[token] = (count / lenDoc)
+            except:
+                weightedDict[token] = 0
 
         return weightedDict
 
@@ -124,12 +123,18 @@ class IREProcessor:
             magnitude = self.calculateMagnitude(matrix[:, i])
             matrix[:, i] = matrix[:, i] / magnitude
 
-        U, sigma, Vt = self.calculateSVD(matrix)
+        matrix = np.nan_to_num(matrix)
 
-        # Reducing dimensions to the shape of sigma
-        # Here, k == r, so the value is the same as cosine similarity
-        U = self.reduceDimensions(sigma.shape[0], U)
-        V = self.reduceDimensions(sigma.shape[0], Vt.transpose())
-        val = V.dot(sigma)
-        result = val.dot(val.transpose())
-        print(result)
+        try:
+            U, sigma, Vt = self.calculateSVD(matrix)
+            # Reducing dimensions to the shape of sigma
+            # Here, k == r, so the value is the same as cosine similarity
+            U = self.reduceDimensions(sigma.shape[0], U)
+            V = self.reduceDimensions(sigma.shape[0], Vt.transpose())
+            val = V.dot(sigma)
+            result = val.dot(val.transpose())
+            return result
+        except:
+            result = matrix.transpose() @ matrix
+            print(matrix)
+            return result
