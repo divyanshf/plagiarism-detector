@@ -2,19 +2,12 @@ from operator import index
 import numpy as np
 import pandas as pd
 import math as m
-from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 
 class IREProcessor:
     def __init__(self, pcomment):
         self.pcomment = pcomment
-
-    def createVectorizerImplementation(self, corpus):
-        vectorizer = TfidfVectorizer(use_idf=True)
-        # idf = vectorizer.idf_
-        # features = vectorizer.get_feature_names()
-        # print(dict(zip(features, idf)))
-        return vectorizer.fit_transform(corpus)
 
     # Create a term by document matrix
     def createTermDocumentMatrix(self, corpus):
@@ -44,7 +37,7 @@ class IREProcessor:
             tncList.append(self.computeLocalWeight(
                 freqList[i], freqList))
 
-        globalWeights = self.computeGlobalWeights(freqList)
+        globalWeights = self.computeGlobalNormalWeights(freqList)
         globalWeights = list(globalWeights.items())
 
         tncList, _ = self.convertDictToMatrix(tncList)
@@ -65,7 +58,7 @@ class IREProcessor:
 
         return weightedDict
 
-    # Compute global weights for the terms
+    # Compute global idf weights for the terms
     def computeGlobalWeights(self, freqList):
         globalWeights = dict.fromkeys(freqList[0].keys(), 0)
         matrix, features = self.convertDictToMatrix(freqList)
@@ -76,6 +69,19 @@ class IREProcessor:
             col = matrix[:, featIndex]
             col = list(filter(lambda x: x != 0, col))
             globalWeights[key] = m.log2((N + 1) / (float(len(col)) + 1) + 1)
+
+        return globalWeights
+
+    # Compute global normal weights for the terms
+    def computeGlobalNormalWeights(self, freqList):
+        globalWeights = dict.fromkeys(freqList[0].keys(), 0)
+        matrix, features = self.convertDictToMatrix(freqList)
+
+        for key, _ in globalWeights.items():
+            featIndex = features.index(key)
+            col = matrix[:, featIndex]
+            col = list(map(lambda x: x*x, col))
+            globalWeights[key] = 1 / m.sqrt(sum(col))
 
         return globalWeights
 

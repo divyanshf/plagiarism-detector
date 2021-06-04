@@ -2,8 +2,8 @@ import argparse
 import glob
 import os
 import pandas as pd
-from filehelper.FileProcessor import FileStructure
-from irehelper.IREProcessor import IREProcessor
+from .FileProcessor import FileStructure
+from .IREProcessor import IREProcessor
 
 parser = argparse.ArgumentParser()
 
@@ -48,13 +48,8 @@ def pickFolder(pcomment):
 def lsaSimilarity(files, pcomment):
     irp = IREProcessor(pcomment)
     corpusCode = [doc.file for doc in files]
+    corpusComment = [doc.comments for doc in files]
 
-    # Built in tf-idf vectorizer
-    tdMatrixCode = irp.createVectorizerImplementation(corpusCode)
-    tdMatrixCode = tdMatrixCode.toarray()
-    similarity = irp.calculateSimilarity(tdMatrixCode)
-
-    # Custom tf-idf weighing
     tdMatrixCode = irp.createTermDocumentMatrix(corpusCode)
     tdMatrixCode = irp.applyTNCWeighting(tdMatrixCode)
 
