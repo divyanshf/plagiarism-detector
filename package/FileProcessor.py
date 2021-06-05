@@ -29,7 +29,7 @@ class FileStructure:
     def processComments(self, processComment):
         comments = []
         patternSingle = re.compile('//.*\n')
-        patternMultiple = re.compile('/\*.*\*/', re.DOTALL)
+        patternMultiple = re.compile('/\*(.*?)\*/', re.DOTALL)
 
         # Store comments if required
         if processComment == True:
@@ -37,21 +37,24 @@ class FileStructure:
                 patternSingle, self.file) + re.findall(patternMultiple, self.file)
             comments = list(
                 map(lambda x: x.replace('//', '').replace('/*', '').replace('*/', '').replace('\n', ' ').strip(), comments))
+            # Tokenize comments
+            self.comments = ' '.join(comments).lower()
+            self.comments = self.tokenizeFile(self.comments)
 
         # Removing comments from the original file
         self.file = re.sub(patternSingle, '\n', self.file)
         self.file = re.sub(patternMultiple, '', self.file)
-        self.comments = ''.join(comments).lower()
-        # print(comments)
 
     # Tokenize the file
-    def tokenizeFile(self):
-        terms = self.file.split()
-        self.file = ''
+    def tokenizeFile(self, file):
+        terms = file.split()
+        file = ''
         for term in terms:
             processedTerms = self.processTerm(term)
             for processedTerm in processedTerms:
-                self.file += processedTerm + ' '
+                file += processedTerm + ' '
+
+        return file
 
     # Split words by  punctuations or digits
     def processTerm(self, word):
@@ -79,4 +82,4 @@ class FileStructure:
         self.file = document.read()
         self.processComments(processComment)
         # self.readFile(document)
-        self.tokenizeFile()
+        self.file = self.tokenizeFile(self.file)

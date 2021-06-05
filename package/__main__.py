@@ -1,11 +1,11 @@
 import argparse
 import glob
-from operator import index
 import os
-from numpy.core.numeric import indices
 import pandas as pd
+import time
 from .FileProcessor import FileStructure
 from .IREProcessor import IREProcessor
+from . import ScreenProcessor as sp
 
 parser = argparse.ArgumentParser()
 
@@ -20,6 +20,11 @@ parser.add_argument(
 
 # Initialize
 def processDocument(path, pcomment, primary=False):
+    # for i in range(0, 5):
+    #     process = "Processing" + '.' * i
+    #     print(process, end='\r')
+    #     time.sleep(1)
+    print('Processing file', path, end=' ')
     document = open(path, 'r')
     filename = ''
     if primary:
@@ -28,6 +33,7 @@ def processDocument(path, pcomment, primary=False):
         _, filename = os.path.split(path)
     fp = FileStructure(filename, document, pcomment)
     document.close()
+    print(u'\u2705')
     return fp
 
 
@@ -52,12 +58,8 @@ def processCorpus(corpus, filenames, globalForm):
 
     # print(corpus)
     tdMatrix = irp.createTermDocumentMatrix(corpus)
-    # df = pd.DataFrame(tdMatrix)
-    # print(df)
 
     tdMatrix = irp.applyWeighting(tdMatrix, globalForm)
-    # df = pd.DataFrame(tdMatrix)
-    # print(df)
 
     similarity = irp.calculateSimilarity(tdMatrix)
     df = pd.DataFrame(similarity[0, :], index=filenames, columns=[''])
@@ -71,10 +73,12 @@ def lsaSimilarity(files, pcomment):
     filenames = [doc.filename for doc in files]
 
     # Source code without comments
+    print('\nSource Code :', end='')
     processCorpus(corpusCode, filenames, 'normal')
 
     # Comments
     if pcomment:
+        print('\nComments :', end='')
         processCorpus(corpusComment, filenames, 'idf')
 
 
@@ -88,6 +92,9 @@ def main():
         if arguments.pcomment == False and arguments.path == None:
             return
 
+    # Clear screen
+    sp.clear()
+
     # If path is not provided in the arguments
     if arguments.path == None:
         path = input('Path to file : ')
@@ -99,7 +106,7 @@ def main():
             arguments.path or path, arguments.pcomment, primary=True))
 
         # User's choice for checking among files or the internet
-        option = int(input('Your choice : '))
+        option = int(input('\nYour choice : '))
         if option == 1:
             files = files + pickFolder(arguments.pcomment)
             lsaSimilarity(files, arguments.pcomment)

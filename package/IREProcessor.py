@@ -135,6 +135,8 @@ class IREProcessor:
             result = val.dot(val.transpose())
             return result
         except:
+            print('Error computing Single Value Decomposition!')
+            print('Recalculating similarity using Cosine Factor...')
             result = matrix.transpose() @ matrix
             print(matrix)
             return result
