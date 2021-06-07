@@ -1,12 +1,20 @@
 import argparse
 import glob
 import os
+import numpy as np
+from colorama.ansi import Back, Fore, Style
+from package.OnlineProcessor import OnlineSearch
 import pandas as pd
-import time
-from .FileProcessor import FileStructure
-from .IREProcessor import IREProcessor
+from package.FileProcessor import FileStructure
+from package.IREProcessor import IREProcessor
 from . import ScreenProcessor as sp
 
+
+# Initialize colorama
+sp.initialize()
+
+
+# Argument parser
 parser = argparse.ArgumentParser()
 
 # Add custom arguments to the the parser
@@ -20,34 +28,35 @@ parser.add_argument(
 
 # Initialize
 def processDocument(path, pcomment, primary=False):
-    # for i in range(0, 5):
-    #     process = "Processing" + '.' * i
-    #     print(process, end='\r')
-    #     time.sleep(1)
-    print('Processing file', path, end=' ')
-    document = open(path, 'r')
     filename = ''
     if primary:
         filename = 'Primary File'
     else:
         _, filename = os.path.split(path)
+    print(Fore.LIGHTCYAN_EX + filename +
+          Fore.YELLOW + ' : Processing...', end='\r')
+    document = open(path, 'r')
     fp = FileStructure(filename, document, pcomment)
     document.close()
-    print(u'\u2705')
+    print(Fore.CYAN + filename + Fore.GREEN + ' : Processing Done !')
     return fp
 
 
 # Get all cpp files from a folder
 def pickFolder(pcomment):
-    folderPath = input('Path to folder : ')
     files = []
-    try:
-        os.chdir(folderPath)
-        for file in glob.glob('*.cpp'):
-            fp = processDocument(file, pcomment)
-            files.append(fp)
-    except Exception as ex:
-        print(ex)
+    while(True):
+        # sp.clear()
+        try:
+            folderPath = input(Style.RESET_ALL +
+                               'Path to folder : ' + Fore.BLUE)
+            os.chdir(folderPath)
+            for file in glob.glob('*.cpp'):
+                fp = processDocument(file, pcomment)
+                files.append(fp)
+            break
+        except Exception as ex:
+            print(Fore.RED + str(ex))
 
     return files
 
@@ -56,14 +65,29 @@ def pickFolder(pcomment):
 def processCorpus(corpus, filenames, globalForm):
     irp = IREProcessor()
 
-    # print(corpus)
     tdMatrix = irp.createTermDocumentMatrix(corpus)
 
     tdMatrix = irp.applyWeighting(tdMatrix, globalForm)
 
     similarity = irp.calculateSimilarity(tdMatrix)
-    df = pd.DataFrame(similarity[0, :], index=filenames, columns=[''])
-    print(df)
+    return similarity
+
+
+# Display result
+def displayResult(dataframe):
+    # print(Fore.MAGENTA + '\nReport :' + Style.RESET_ALL)
+    # print(dataframe)
+    try:
+        path = input(Style.RESET_ALL +
+                     'Where do you want to save the result : ' + Fore.BLUE)
+        lastChar = path[len(path) - 1]
+        if lastChar != '/' or lastChar != '\\':
+            path = path+'/'
+        dataframe.to_csv(path+'result.csv')
+        print(Fore.GREEN + 'Saved to ' + Fore.BLUE +
+              path + 'result.csv' + Style.RESET_ALL)
+    except Exception as ex:
+        print(Fore.RED + str(ex))
 
 
 # Latent Semantic Analysis
@@ -71,15 +95,37 @@ def lsaSimilarity(files, pcomment):
     corpusCode = [doc.file for doc in files]
     corpusComment = [doc.comments for doc in files]
     filenames = [doc.filename for doc in files]
+    nComments = [doc.nComments for doc in files]
 
     # Source code without comments
-    print('\nSource Code :', end='')
-    processCorpus(corpusCode, filenames, 'normal')
+    print(Fore.BLUE + 'Similarity : ' + Fore.YELLOW +
+          'Calculating...' + Style.RESET_ALL, end='\r')
+    simCode = processCorpus(corpusCode, filenames, 'normal')
+    result = simCode[0, :] * 100
+    columns = ['Sim(Code)']
 
     # Comments
     if pcomment:
-        print('\nComments :', end='')
-        processCorpus(corpusComment, filenames, 'idf')
+        simComment = processCorpus(corpusComment, filenames, 'idf')
+        result = np.vstack([result, simComment[0, :] * 100])
+        columns.append('Sim(Comments)')
+
+    print(Fore.BLUE + 'Similarity : ' + Fore.GREEN +
+          'Calculation Done!' + Style.RESET_ALL)
+
+    result = np.vstack([result, nComments])
+    columns.append('#Comments')
+
+    result = result.transpose()
+    df = pd.DataFrame(result, index=filenames, columns=columns)
+    # df.style.highlight_max(subset=['Sim(Code)'])
+    df['Sim(Code)'] = df['Sim(Code)'].astype(float).round(2)
+    try:
+        df['Sim(Comments)'] = df['Sim(Comments)'].astype(float).round(2)
+    except:
+        None
+    df.style.format({'Sim(Code)': ":.2%"})
+    return df
 
 
 # Driver function
@@ -88,7 +134,7 @@ def main():
 
     # CLI Version required
     if arguments.version:
-        print('version=0.1.0')
+        print(Fore.GREEN + 'version=0.1.0' + Style.RESET_ALL)
         if arguments.pcomment == False and arguments.path == None:
             return
 
@@ -97,7 +143,7 @@ def main():
 
     # If path is not provided in the arguments
     if arguments.path == None:
-        path = input('Path to file : ')
+        path = input('Path to file : ' + Fore.BLUE)
 
     # Process the documents
     try:
@@ -106,15 +152,24 @@ def main():
             arguments.path or path, arguments.pcomment, primary=True))
 
         # User's choice for checking among files or the internet
-        option = int(input('\nYour choice : '))
-        if option == 1:
+        menuChoice = sp.Menu(['Local Similarity', 'Global Similarity'], 0)
+        menuChoice.render()
+        option = menuChoice.takeInput()
+        # option = int(input(Style.RESET_ALL + '\nYour choice : ' + Fore.BLUE))
+        if option == 0:
             files = files + pickFolder(arguments.pcomment)
-            lsaSimilarity(files, arguments.pcomment)
+            df = lsaSimilarity(files, arguments.pcomment)
+            displayResult(df)
         else:
-            print('GOOOOOOOGLE')
+            print(Fore.BLUE + 'GOOOOOOOOGLE' + Style.RESET_ALL)
+            # os = OnlineSearch()
+            # os.onlineSearch('Stackoverflow')
     except Exception as ex:
-        print(ex)
+        print(Fore.RED + str(ex))
         return
+
+    # Deinitialize colorama
+    sp.deinitialize()
 
 
 if __name__ == '__main__':

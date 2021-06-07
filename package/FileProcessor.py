@@ -12,6 +12,7 @@ class FileStructure:
         self.file = None
         self.lines = []
         self.comments = ''
+        self.nComments = 0
         self.preprocess(document, processComment)
 
     # Read the file and convert it into a list of lines
@@ -32,11 +33,11 @@ class FileStructure:
         patternMultiple = re.compile('/\*(.*?)\*/', re.DOTALL)
 
         # Store comments if required
+        comments = re.findall(
+            patternSingle, self.file) + re.findall(patternMultiple, self.file)
+        comments = list(
+            map(lambda x: x.replace('//', '').replace('/*', '').replace('*/', '').replace('\n', ' ').strip(), comments))
         if processComment == True:
-            comments = re.findall(
-                patternSingle, self.file) + re.findall(patternMultiple, self.file)
-            comments = list(
-                map(lambda x: x.replace('//', '').replace('/*', '').replace('*/', '').replace('\n', ' ').strip(), comments))
             # Tokenize comments
             self.comments = ' '.join(comments).lower()
             self.comments = self.tokenizeFile(self.comments)
@@ -44,6 +45,7 @@ class FileStructure:
         # Removing comments from the original file
         self.file = re.sub(patternSingle, '\n', self.file)
         self.file = re.sub(patternMultiple, '', self.file)
+        self.nComments = len(comments)
 
     # Tokenize the file
     def tokenizeFile(self, file):

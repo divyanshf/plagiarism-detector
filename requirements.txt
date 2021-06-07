@@ -1,0 +1,6 @@
+numpy
+panda
+nltk
+google
+colorama
+argparse

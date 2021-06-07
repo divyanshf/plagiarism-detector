@@ -1,5 +1,5 @@
+from colorama.ansi import Fore, Style
 import numpy as np
-from numpy.core.numeric import NaN
 import pandas as pd
 import math as m
 np.seterr(divide='ignore', invalid='ignore')
@@ -135,8 +135,8 @@ class IREProcessor:
             result = val.dot(val.transpose())
             return result
         except:
-            print('Error computing Single Value Decomposition!')
-            print('Recalculating similarity using Cosine Factor...')
+            print(Fore.RED + 'Error computing Single Value Decomposition!')
+            print(
+                Fore.CYAN + 'Recalculating similarity using Cosine Factor...' + Style.RESET_ALL)
             result = matrix.transpose() @ matrix
-            print(matrix)
             return result
