@@ -77,17 +77,19 @@ def processCorpus(corpus, filenames, globalForm):
 def displayResult(dataframe):
     # print(Fore.MAGENTA + '\nReport :' + Style.RESET_ALL)
     # print(dataframe)
-    try:
-        path = input(Style.RESET_ALL +
-                     'Where do you want to save the result : ' + Fore.BLUE)
-        lastChar = path[len(path) - 1]
-        if lastChar != '/' or lastChar != '\\':
-            path = path+'/'
-        dataframe.to_csv(path+'result.csv')
-        print(Fore.GREEN + 'Saved to ' + Fore.BLUE +
-              path + 'result.csv' + Style.RESET_ALL)
-    except Exception as ex:
-        print(Fore.RED + str(ex))
+    while True:
+        try:
+            path = input(Style.RESET_ALL +
+                         'Where do you want to save the result : ' + Fore.BLUE)
+            lastChar = path[len(path) - 1]
+            if lastChar != '/':
+                path = path+'/'
+            dataframe.to_csv(path+'result.csv')
+            print(Fore.GREEN + 'Saved to ' + Fore.BLUE +
+                  path + 'result.csv' + Style.RESET_ALL)
+            break
+        except Exception as ex:
+            print(Fore.RED + str(ex))
 
 
 # Latent Semantic Analysis
@@ -152,10 +154,10 @@ def main():
             arguments.path or path, arguments.pcomment, primary=True))
 
         # User's choice for checking among files or the internet
-        menuChoice = sp.Menu(['Local Similarity', 'Global Similarity'], 0)
+        menuChoice = sp.Menu(
+            ['Local Similarity', 'Global Similarity'], 0, 'Choose an option :')
         menuChoice.render()
         option = menuChoice.takeInput()
-        # option = int(input(Style.RESET_ALL + '\nYour choice : ' + Fore.BLUE))
         if option == 0:
             files = files + pickFolder(arguments.pcomment)
             df = lsaSimilarity(files, arguments.pcomment)
@@ -166,7 +168,6 @@ def main():
             # os.onlineSearch('Stackoverflow')
     except Exception as ex:
         print(Fore.RED + str(ex))
-        return
 
     # Deinitialize colorama
     sp.deinitialize()
@@ -174,3 +175,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+Style.RESET_ALL

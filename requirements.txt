@@ -1,6 +1,7 @@
 numpy
 panda
 nltk
-google
 colorama
+keyboard
+google
 argparse

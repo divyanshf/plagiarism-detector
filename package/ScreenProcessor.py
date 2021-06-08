@@ -1,8 +1,8 @@
+from msvcrt import getch
 from os import system, name
-from typing import Optional
+from sys import platform
 from colorama import init, deinit
 from colorama.ansi import Fore, Style
-import keyboard
 
 
 def initialize():
@@ -20,11 +20,34 @@ def clear():
         _ = system('clear')
 
 
+# Keyboard
+class KeyboardStuff:
+    def __init__(self):
+        self.platform = platform
+        self.keyBinds = {b'H': 'up', b'P': 'down', b'M': 'right', b'K': 'left'}
+
+    def detectKey(self):
+        if self.platform == 'win32':
+            import msvcrt
+            while True:
+                if msvcrt.kbhit():
+                    key = msvcrt.getch()
+                    if key == b'\x00':
+                        ch = self.keyBinds[msvcrt.getch()]
+                        return ch
+                    else:
+                        return key
+        else:
+            print('Not supported platform')
+            exit(0)
+
+
 # Menu Class to show a menu
 class Menu:
-    def __init__(self, options, current):
+    def __init__(self, options, current, title):
         self.options = options
         self.current = current
+        self.title = title
 
     # Move the cursor up
     def moveUp(self):
@@ -40,16 +63,35 @@ class Menu:
 
     # Take input
     def takeInput(self):
-        keyboard.add_hotkey('up', self.moveUp)
-        keyboard.add_hotkey('down', self.moveDown)
-        keyboard.wait('enter')
+        # while True:
+        #     if keyboard.is_pressed('up'):
+        #         self.moveUp()
+        #     elif keyboard.is_pressed('down'):
+        #         self.moveDown()
+        #     elif keyboard.is_pressed('enter'):
+        #         break
+        keyboard = KeyboardStuff()
+        while True:
+            ch = keyboard.detectKey()
+            if ch == 'up':
+                self.moveUp()
+            elif ch == 'down':
+                self.moveDown()
+            elif ch == b'\r':
+                break
+
+        # keyboard.add_hotkey('up', self.moveUp)
+        # keyboard.add_hotkey('down', self.moveDown)
+        # keyboard.wait('enter')
         # clear()
-        keyboard.remove_all_hotkeys()
+        # keyboard.clear_all_hotkeys()
+        # keyboard.remove_all_hotkeys()
         return self.current
 
     # Render
     def render(self):
         clear()
+        print(Style.RESET_ALL + self.title)
         for index, option in enumerate(self.options):
             if self.current == index:
                 print(Fore.GREEN + '->', end='')
