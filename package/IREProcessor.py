@@ -128,9 +128,11 @@ class IREProcessor:
         try:
             U, sigma, Vt = self.calculateSVD(matrix)
             # Reducing dimensions to the shape of sigma
-            # Here, k == r, so the value is the same as cosine similarity
-            U = self.reduceDimensions(sigma.shape[0], U)
-            V = self.reduceDimensions(sigma.shape[0], Vt.transpose())
+            # If, k == r, the value is the same as cosine similarity
+            # Limiting the dimensions to 100
+            k = 100 if sigma.shape[0] > 100 else sigma.shape[0]
+            U = self.reduceDimensions(k, U)
+            V = self.reduceDimensions(k, Vt.transpose())
             val = V.dot(sigma)
             result = val.dot(val.transpose())
             return result

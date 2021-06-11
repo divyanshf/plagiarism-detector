@@ -33,8 +33,8 @@ def processDocument(path, pcomment, primary=False):
         filename = 'Primary File'
     else:
         _, filename = os.path.split(path)
-    print(Fore.LIGHTCYAN_EX + filename +
-          Fore.YELLOW + ' : Processing...', end='\r')
+    # print(Fore.LIGHTCYAN_EX + filename +
+    #       Fore.YELLOW + ' : Processing...', end='\r')
     document = open(path, 'r')
     fp = FileStructure(filename, document, pcomment)
     document.close()
