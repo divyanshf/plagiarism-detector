@@ -32,7 +32,7 @@ class KeyboardStuff:
             while True:
                 if msvcrt.kbhit():
                     key = msvcrt.getch()
-                    if key == b'\x00':
+                    if key == b'\x00' or key == b'\xe0':
                         ch = self.keyBinds[msvcrt.getch()]
                         return ch
                     else:
@@ -63,13 +63,6 @@ class Menu:
 
     # Take input
     def takeInput(self):
-        # while True:
-        #     if keyboard.is_pressed('up'):
-        #         self.moveUp()
-        #     elif keyboard.is_pressed('down'):
-        #         self.moveDown()
-        #     elif keyboard.is_pressed('enter'):
-        #         break
         keyboard = KeyboardStuff()
         while True:
             ch = keyboard.detectKey()
@@ -79,13 +72,6 @@ class Menu:
                 self.moveDown()
             elif ch == b'\r':
                 break
-
-        # keyboard.add_hotkey('up', self.moveUp)
-        # keyboard.add_hotkey('down', self.moveDown)
-        # keyboard.wait('enter')
-        # clear()
-        # keyboard.clear_all_hotkeys()
-        # keyboard.remove_all_hotkeys()
         return self.current
 
     # Render
