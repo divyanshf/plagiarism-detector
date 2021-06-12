@@ -13,6 +13,11 @@ class FileStructure:
         self.lines = []
         self.comments = ''
         self.nComments = 0
+        self.nVariables = 0
+        self.datatypes = ['int', 'char', 'bool',
+                          'float', 'double', 'void', 'wchar_t']
+        self.datatypeModifier = [
+            'signed', 'unsigned', 'short', 'long', 'long long']
         self.preprocess(document, processComment)
 
     # Read the file and convert it into a list of lines
@@ -103,6 +108,16 @@ class FileStructure:
             self.comments = ' '.join(comments).lower()
             self.comments = self.tokenizeFile(self.comments)
 
+    # Finding primitive variable declarations using Regex
+    # !!! Fix the count of declaration inside a string
+    def processVariablesRegex(self):
+        group = '|'.join(self.datatypeModifier) + \
+            '|' + '|'.join(self.datatypes)
+        pattern = re.compile(rf'(?:{group})\s.*?;')
+        declarations = re.findall(pattern, self.file)
+        for declaration in declarations:
+            self.nVariables += declaration.count(',') + 1
+
     # Tokenize the file
     def tokenizeFile(self, file):
         terms = file.split()
@@ -139,6 +154,7 @@ class FileStructure:
     def preprocess(self, document, processComment):
         self.file = document.read()
         self.processComments(processComment)
-        # self.processComments(processComment)
+        # self.processCommentsRegex(processComment)
         # self.readFile(document)
+        self.processVariablesRegex()
         self.file = self.tokenizeFile(self.file)
