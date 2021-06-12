@@ -2,6 +2,5 @@ numpy
 panda
 nltk
 colorama
-keyboard
 google
 argparse
