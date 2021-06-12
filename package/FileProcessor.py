@@ -12,6 +12,7 @@ class FileStructure:
         self.file = None
         self.lines = []
         self.comments = ''
+        self.inString = []
         self.nComments = 0
         self.nVariables = 0
         self.datatypes = ['int', 'char', 'bool',
@@ -30,6 +31,12 @@ class FileStructure:
 
         # Remove leading whitespaces and tabs
         self.lines = list(map(lambda x: x.lstrip(), self.lines))
+
+    # Find the positions of strings in the code
+    def processStrings(self):
+        pattern = re.compile('\".*?\"', re.DOTALL)
+        self.inString = [(m.start(), m.end() - 1)
+                         for m in re.finditer(pattern, self.file)]
 
     # Processing comments using regex
     # def processCommentsRegex(self, processComment):
@@ -110,13 +117,42 @@ class FileStructure:
 
     # Finding primitive variable declarations using Regex
     # !!! Fix the count of declaration inside a string
+    # Doesn't consider the fact that " can be escaped inside the string as well
     def processVariablesRegex(self):
         group = '|'.join(self.datatypeModifier) + \
             '|' + '|'.join(self.datatypes)
         pattern = re.compile(rf'(?:{group})\s.*?;')
         declarations = re.findall(pattern, self.file)
+        decPositions = [(m.start(), m.end() - 1)
+                        for m in re.finditer(pattern, self.file)]
+        declarations, decPositions = self.checkStringExclusive(
+            declarations, decPositions)
         for declaration in declarations:
             self.nVariables += declaration.count(',') + 1
+
+    # Check if a value is inside a string in the code
+    def checkStringExclusive(self, values, valueIndices):
+        result = [True for i in range(len(values))]
+        for index in range(len(values)):
+            valueIndex = valueIndices[index]
+            for stringPos in self.inString:
+                start = stringPos[0]
+                end = stringPos[1]
+                # Completely inside the string
+                cond1 = start < valueIndex[0] and end > valueIndex[1]
+                # Second half partially inside the string
+                cond2 = start < valueIndex[0] and (
+                    end < valueIndex[1] and start < valueIndex[1])
+                # First half partially inside the string
+                cond3 = start > valueIndex[0] and (
+                    end > valueIndex[1] and start < valueIndex[1])
+                if cond1 or cond2 or cond3:
+                    result[index] = False
+        values = [value for index, value in enumerate(
+            values) if result[index]]
+        valueIndices = [valueIndex for index,
+                        valueIndex in enumerate(valueIndices) if result[index]]
+        return values, valueIndices
 
     # Tokenize the file
     def tokenizeFile(self, file):
@@ -154,6 +190,7 @@ class FileStructure:
     def preprocess(self, document, processComment):
         self.file = document.read()
         self.processComments(processComment)
+        self.processStrings()
         # self.processCommentsRegex(processComment)
         # self.readFile(document)
         self.processVariablesRegex()
