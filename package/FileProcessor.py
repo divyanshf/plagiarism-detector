@@ -139,8 +139,8 @@ class FileStructure:
                         stack.append(char)
                 elif (char == ',' or char == ';') and len(stack) == 0:
                     self.nVariables += 1
-        print(declarations)
-        print(self.nVariables)
+        # print(declarations)
+        # print(self.nVariables)
 
     # Check if the declaration is of a variable or a function
     # int sum(int a, int b) || int sum(0)

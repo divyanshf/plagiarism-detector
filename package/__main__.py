@@ -98,6 +98,7 @@ def lsaSimilarity(files, pcomment):
     corpusComment = [doc.comments for doc in files]
     filenames = [doc.filename for doc in files]
     nComments = [doc.nComments for doc in files]
+    nVariables = [doc.nVariables for doc in files]
 
     # Source code without comments
     print(Fore.BLUE + 'Similarity : ' + Fore.YELLOW +
@@ -115,8 +116,13 @@ def lsaSimilarity(files, pcomment):
     print(Fore.BLUE + 'Similarity : ' + Fore.GREEN +
           'Calculation Done!' + Style.RESET_ALL)
 
+    # Number of comments
     result = np.vstack([result, nComments])
-    columns.append('#Comments')
+    columns.append('# Comments')
+
+    # Number of variables
+    result = np.vstack([result, nVariables])
+    columns.append('# Varaibles')
 
     result = result.transpose()
     df = pd.DataFrame(result, index=filenames, columns=columns)
@@ -126,6 +132,7 @@ def lsaSimilarity(files, pcomment):
         df['Sim(Comments)'] = df['Sim(Comments)'].astype(float).round(2)
     except:
         None
+
     df.style.format({'Sim(Code)': ":.2%"})
     return df
 
