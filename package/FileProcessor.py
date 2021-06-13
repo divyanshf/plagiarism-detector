@@ -129,8 +129,18 @@ class FileStructure:
         declarations = [dec for dec in declarations if not(
             self.checkFuncDeclaration(group, dec))]
         for declaration in declarations:
-            self.nVariables += declaration.count(',') + 1
-        # print(declarations)
+            stack = []
+            for char in declaration:
+                if (char == '(' or char == ')'):
+                    invChar = '(' if char == ')' else ')'
+                    if len(stack) != 0 and stack[-1] == invChar:
+                        stack.pop()
+                    else:
+                        stack.append(char)
+                elif (char == ',' or char == ';') and len(stack) == 0:
+                    self.nVariables += 1
+        print(declarations)
+        print(self.nVariables)
 
     # Check if the declaration is of a variable or a function
     # int sum(int a, int b) || int sum(0)
