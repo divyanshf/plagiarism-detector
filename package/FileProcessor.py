@@ -116,7 +116,6 @@ class FileStructure:
             self.comments = self.tokenizeFile(self.comments)
 
     # Finding primitive variable declarations using Regex
-    # !!! Fix the count of declaration inside a string
     # Doesn't consider the fact that " can be escaped inside the string as well
     def processVariablesRegex(self):
         group = '|'.join(self.datatypeModifier) + \
@@ -127,8 +126,28 @@ class FileStructure:
                         for m in re.finditer(pattern, self.file)]
         declarations, decPositions = self.checkStringExclusive(
             declarations, decPositions)
+        declarations = [dec for dec in declarations if not(
+            self.checkFuncDeclaration(group, dec))]
         for declaration in declarations:
             self.nVariables += declaration.count(',') + 1
+        # print(declarations)
+
+    # Check if the declaration is of a variable or a function
+    # int sum(int a, int b) || int sum(0)
+    def checkFuncDeclaration(self, group, declaration):
+        result = False
+        try:
+            pattern = re.compile(rf'\((?:{group})\s.*?\)')
+            par = re.findall(pattern, declaration)
+            if par:
+                result = True
+        except:
+            None
+        return result
+
+    # Process the functions in the code
+    def processFunctionsRegex(self):
+        group = ''
 
     # Check if a value is inside a string in the code
     def checkStringExclusive(self, values, valueIndices):
