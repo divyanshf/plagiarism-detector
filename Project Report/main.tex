@@ -7,7 +7,6 @@
 \usepackage{textcomp}
 \usepackage{enumitem}
 \usepackage{graphicx}
-\usepackage{listings}
 \usepackage{xcolor}
 \graphicspath{{images/}}
 \usepackage{parskip}
@@ -18,11 +17,6 @@
 \setlength{\parindent}{5ex}
 							
 
-\lstdefinestyle{DOS}
-{
-    backgroundcolor=\color{black},
-    basicstyle=\scriptsize\color{white}\ttfamily
-}
 
 \makeatletter
 \let\thetitle\@title
@@ -95,7 +89,7 @@ This project aims at providing a solution to the 'Plague of Plagiarism' in the a
 
 \section{Introduction}
 \subsection{Plagiarism}
-Plagiarism, as we know, is the act of imitating or copying someone else's work and presenting it as your own. It is very common in the academic environment where students usually copy assignments from their peers, modify it to conceal the fact that it is plagiarised and submit it as their own work. This can make it difficult for the instructor to identify plagiarised assignments manually. \par
+Plagiarism, as we know, is the act of imitating or copying someone else's work and presenting it as your own. \cite{plagiarism}  It is very common in the academic environment where students usually copy assignments from their peers, modify it to conceal the fact that it is plagiarised and submit it as their own work. This can make it difficult for the instructor to identify plagiarised assignments manually. \par
 From the perspective of academic professionals, there is no commonly agreed definition of what constitutes a source code plagiarism. For instance, the problem statement may require the use of a common algorithm, so every submission will have the same algorithm. So, surely the assignments will be similar but nothing can be said about it being plagiarised. \par
 
 \subsection{Background}
@@ -104,53 +98,55 @@ A lot of research has been put into the field of source code plagiarism and a to
 
 \subsection{Motivation}
 Plagiarising code assignments constitutes a form of academic deception. Students usually plagiarise due to either laziness or the lack of academic ability. It is important that students try and do these assignments by themselves. Not only in academic institutions, plagiarism of source code is also found on online coding platforms and sometimes, we may even find that an entire software is plagiarised. \par
-Plagiarisation of any academic material is considered to be an ethical offense and may lead the person to some serious consequences. In legal terms, it is considered as literary theft. The ethics of plagiarism is the ethics of stealing  \footnote{\url{https://www.plagramme.com/ethics-of-plagiarism}}.
+Plagiarisation of any academic material is considered to be an ethical offense and may lead the person to some serious consequences. In legal terms, it is considered as literary theft. The ethics of plagiarism is the ethics of stealing  \cite{ethicplag}.
 
 \subsection{Problem Statement}
-Detecting plagiarism in source code files, be it two files or a hundred files, is tedious task to do manually for any instructor. With this in mind, the question that comes to mind is "Can plagiarism be detected among different source code files?" or "Is it possible to automate the process of plagiarism detection in source code". This project aims to answer the above mentioned questions.
+Detecting plagiarism in source code files, be it two files or a hundred files, is a tedious task to do manually for any instructor. With this in mind, the question that comes up is "Can plagiarism be detected among different source code files?" or "Is it possible to automate the process of plagiarism detection in source code". This project aims to answer the above mentioned questions.
 
 \subsection{Objective}
-One of the major objectives of this project is to provide a reliable solution to the academic institutions to detect plagiarism in the submitted assignments using very less computation power. This project has been developed in the form of a CLI tool which, in general, is considered to be faster and more efficient as compared to other interface tools. \par
+One of the major objectives of Plag is to provide a reliable solution to the academic institutions to detect plagiarism in the submitted assignments with a hassle-free process. Plag has been developed in the form of a CLI tool which, in general, is considered to be faster and more efficient as compared to other interface tools. \par
 
 
 \section{Literature Review}
-Plagiarising assignments in academic institutions is getting way too normalized now-a-days and in this era of online education, young students tend to get attracted towards plagiarising solutions as it seems to provide them an easy way to get things done. Several methods have been proposed for efficient identification of plagiarism after intensive research. \par \textbf{Deimos} is one of the result of such a research which is described in "Automatic Source Code Plagiarism Detection" by Cynthia Kustanto and Inggriani Liem. It works in the following steps : (a) Tokenization, (b) Comparison of tokens using RKR-GST  algorithm. \par
-Another approach described in "An AST-based Code Plagiarism Detection System" by Jingling Zhao, Kunfeng Xia, Yilun Fu, Baojiang Cui makes use of abstract syntax trees to identify the similarity of the syntactic structure of the code. This approach is better suitable for plagiarism detection in repositories or programs that may not require the same algorithm for solutions and so the flow of program may be different. \par
-This project, however, is heavily inspired from the thesis "An Approach to Source-Code Plagiarism Detection and Investigation Using Latent Semantic Analysis" by Georgina Cosma, Mike Joy which approaches the problem using information retrieval techniques, specifically Latent Semantic Analysis, so as to find the similarity among different programs.
+Plagiarising assignments in academic institutions is getting way too normalized now-a-days and in this era of online education, young students tend to get attracted towards plagiarising solutions as it seems to provide them an easy way to get things done. Several methods have been proposed for efficient identification of plagiarism after intensive research. \par \textbf{Deimos} is the result of such a research which is described in "Automatic Source Code Plagiarism Detection" \cite{article}. It works in the following steps : (a) Tokenization, (b) Comparison of tokens using RKR-GST  algorithm. \par
+Another approach described in "An AST-based Code Plagiarism Detection System" \cite{5286623} makes use of abstract syntax trees to identify the similarity of the syntactic structure of the code. This approach is better suitable for plagiarism detection in repositories or programs that may not require the same algorithm for solutions and so the flow of program may be different. \par
+Yet another interesting approach is the one described in "Machine Learning for source-code plagiarism detection" \cite{8575900} where the author approaches the problem of plagiarism detection in source code files using machine learning and deep learning and describes multiple methods to solve it include supervised and unsupervised learning algorithms. \par
+This project, however, is heavily inspired from the thesis "An Approach to Source-Code Plagiarism Detection and Investigation Using Latent Semantic Analysis" \cite{6086533} which approaches the problem using information retrieval techniques, specifically Latent Semantic Analysis, so as to find the similarity among different programs.
 
 %\pagebreak
 
 \section{Methodology}
 \subsection{Flow Chart}
-\includegraphics[height=15cm]{flow.png}
+\includegraphics[height=16cm]{flow.png}
+\pagebreak
 \subsection{Implementation}
-Based on the fact that this tool needs to be used by instructors for detecting plagiarism, understanding the needs of the instructor is an important part in developing it. It is developed as a python package that works directly from the command line. To install the package on a system, cd into the root of the package\footnote{\url{https://github.com/DivyanshFalodiya/plagiarism-detector}} where setup.py is located and run the following command:
+Based on the fact that this tool needs to be used by instructors for detecting plagiarism, understanding the needs of the instructor is an important part in developing it. It is developed as a python package that works directly from the command line. To install the package on a system, cd into the root of the package \footnote{\url{https://github.com/DivyanshFalodiya/plagiarism-detector}} where setup.py is located and run the following command:
 \begin{verbatim}
     >> python setup.py install
 \end{verbatim}
 This will install the package on the system and add the "plag" command to the PATH variable.
 The command to access the tool is "plag".\par
-Some examples of the commands are:
+Some examples of using the "plag" command are:
 \begin{itemize}
     \item Display the version of the tool.
     % \begin{quote}
-    \begin{lstlisting}[style=DOS]
+    \begin{verbatim}
     >> plag --version
-    \end{lstlisting}
+    \end{verbatim}
     % \end{quote}
     
     \item Display information about the tool.
     % \begin{quote}
-    \begin{lstlisting}[style=DOS]
+    \begin{verbatim}
     >> plag --help
-    \end{lstlisting}
+    \end{verbatim}
     % \end{quote}
     
     \item Sets the process comment argument (-pc) as True and sets the path to the primary file (-p) as "c:/Users/divyansh/data/file1.cpp".
     % \begin{quote}
-    \begin{lstlisting}[style=DOS]
+    \begin{verbatim}
     >> plag -pc -p "c:/Users/divyansh/data/file1.cpp"
-    \end{lstlisting}
+    \end{verbatim}
     % \end{quote}
 \end{itemize}
 There are many more ways to customize the processing other than those described here. \par
@@ -191,9 +187,7 @@ The process that occurs under the hood is as follows:
 %\pagebreak
 %\section*{iii.MPU6050 Gyro Sensor}
 
-\pagebreak
-\section{What awaits in the future?}
-MPU6050 sensor has many functions over the single chip. It consists a MEMS accelerometer, a MEMS gyro, and temperature sensor.This MPU6050 module is a compact chip having both accelerometer and gyro. This is a very useful device for many applications like drones, robots, motion sensors.
+% \pagebreak
 
 % \includegraphics[height=5in]{ta.jpg}
 % \pagebreak
@@ -203,9 +197,11 @@ MPU6050 sensor has many functions over the single chip. It consists a MEMS accel
 % \includegraphics[height=4in]{re.jpg}
 
 % \pagebreak
-\section{Work/Tasks to be completed}
-MPU6050 sensor has many functions over the single chip. It consists a MEMS accelerometer, a MEMS gyro, and temperature sensor.This MPU6050 module is a compact chip having both accelerometer and gyro. This is a very useful device for many applications like drones, robots, motion sensors.
-
+\section{What does the future hold?}
+Plag is CLI based tool which means that it operates from the command line interface. One of its restraint is that it is limited to the Windows operating system only, i.e., it is not cross-platform. So, one of the foremost feature to be added is
+support for different operating systems. \par
+At present, Plag is limited to detecting plagiarism in C++ files only which is a bit of trouble because there are many languages the assignments can be submitted in. So, support for a bunch of programming languages is to be added. \par
+Another upgrade is user customization. As of now, users do not have much control over the process of detection which is important for customizing the process according to the needs.
 % \section{Gantt Chart}
 
 % \includegraphics[height=4in]{re.jpg}
@@ -213,16 +209,12 @@ MPU6050 sensor has many functions over the single chip. It consists a MEMS accel
 
 
 \section{Conclusion}
-%\section*{i.Arduino Uno}
-The Arduino Uno is a microcontroller board based on the ATmega328. It has 20 digital input/output pins (of which 6 can be used as PWM outputs and 6 can be used as analog inputs), a 16 MHz resonator, a USB connection, a power jack, an in-circuit system programming (ICSP) header, and a reset button.
-
-%\includegraphics[height=3cm]{ar.jpg}
-
-%\section*{ii.RF 433MHz Transmitter/Receiver Module}
-These RF modules are very popular among the Arduino tinkerers. The 433MHz transceiver/receiver modules are used on a wide variety of applications that require wireless control.
+There has been a lot of research in the field of source code plagiarism detection and different kinds of solutions have been proposed from diving deep into the syntactical structure of the code to find out the similarity to matching code strings. The approach used in Plag is somewhere in the middle. Though, it does not dive into the syntactical structure, it tries to observe the semantics of the code, thus producing average results.
 
 \newpage
+
+% \setcitestyle{numbers}
 \bibliographystyle{plain}
-\bibliography{biblist}
+\bibliography{myref.bib}
 
 \end{document}
