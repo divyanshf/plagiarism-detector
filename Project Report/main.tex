@@ -16,7 +16,12 @@
 \setmarginsrb{3 cm}{2.5 cm}{3 cm}{2.5 cm}{1 cm}{1.5 cm}{1 cm}{1.5 cm}
 \setlength{\parindent}{5ex}
 							
-
+\hypersetup{
+colorlinks = true,
+urlcolor = blue,
+linkcolor = blue,
+citecolor = green
+}
 
 \makeatletter
 \let\thetitle\@title
@@ -108,10 +113,10 @@ One of the major objectives of Plag is to provide a reliable solution to the aca
 
 
 \section{Literature Review}
-Plagiarising assignments in academic institutions is getting way too normalized now-a-days and in this era of online education, young students tend to get attracted towards plagiarising solutions as it seems to provide them an easy way to get things done. Several methods have been proposed for efficient identification of plagiarism after intensive research. \par \textbf{Deimos} is the result of such a research which is described in "Automatic Source Code Plagiarism Detection" \cite{article}. It works in the following steps : (a) Tokenization, (b) Comparison of tokens using RKR-GST  algorithm. \par
+Plagiarising assignments in academic institutions is getting way too normalized now-a-days and in this era of online education, young students tend to get attracted towards plagiarising solutions as it seems to provide them an easy way to get things done. Several methods have been proposed for identification of plagiarism after intensive research. \par \textbf{Deimos} is the result of such a research which is described in "Automatic Source Code Plagiarism Detection" \cite{article}. It works in the following steps : (a) Tokenization, (b) Comparison of tokens using RKR-GST  algorithm. \par
 Another approach described in "An AST-based Code Plagiarism Detection System" \cite{5286623} makes use of abstract syntax trees to identify the similarity of the syntactic structure of the code. This approach is better suitable for plagiarism detection in repositories or programs that may not require the same algorithm for solutions and so the flow of program may be different. \par
-Yet another interesting approach is the one described in "Machine Learning for source-code plagiarism detection" \cite{8575900} where the author approaches the problem of plagiarism detection in source code files using machine learning and deep learning and describes multiple methods to solve it include supervised and unsupervised learning algorithms. \par
-This project, however, is heavily inspired from the thesis "An Approach to Source-Code Plagiarism Detection and Investigation Using Latent Semantic Analysis" \cite{6086533} which approaches the problem using information retrieval techniques, specifically Latent Semantic Analysis, so as to find the similarity among different programs.
+Yet another interesting approach is the one described in "Machine Learning for source-code plagiarism detection" \cite{8575900} where the author approaches the problem of plagiarism detection in source code files using machine learning and deep learning and describes multiple methods using machine learning algorithms. \par
+This project, however, is heavily inspired from the thesis "An Approach to Source-Code Plagiarism Detection and Investigation Using Latent Semantic Analysis" \cite{6086533} which approaches the problem using information retrieval techniques, specifically Latent Semantic Analysis, to find the similarity among different programs.
 
 %\pagebreak
 
@@ -142,10 +147,10 @@ Some examples of using the "plag" command are:
     \end{verbatim}
     % \end{quote}
     
-    \item Sets the process comment argument (-pc) as True and sets the path to the primary file (-p) as "c:/Users/divyansh/data/file1.cpp".
+    \item Sets the path to the primary file as "../data/file1.cpp" and the path to the folder as "../data" with the type of files as "cpp".
     % \begin{quote}
     \begin{verbatim}
-    >> plag -pc -p "c:/Users/divyansh/data/file1.cpp"
+    >> plag compare "../data/file1.cpp" "../data/" cpp
     \end{verbatim}
     % \end{quote}
 \end{itemize}
@@ -168,48 +173,15 @@ The process that occurs under the hood is as follows:
     \item The features extracted during preprocessing and the similarity value calculated for the code and comments make up another feature vector for the document. Now, the simiarity is calculated using Cosine Similarity.
     \item A detailed report indicating the feature values and the similarity is presented to the user.
 \end{enumerate}
-%\includegraphics[height=5cm]{download.jpg}
 
-% \section{What awaits in the future?}
-% %\section*{i.Arduino Uno}
-% The Arduino Uno is a microcontroller board based on the ATmega328. It has 20 digital input/output pins (of which 6 can be used as PWM outputs and 6 can be used as analog inputs), a 16 MHz resonator, a USB connection, a power jack, an in-circuit system programming (ICSP) header, and a reset button.
-
-% %\includegraphics[height=3cm]{ar.jpg}
-
-% %\section*{ii.RF 433MHz Transmitter/Receiver Module}
-% These RF modules are very popular among the Arduino tinkerers. The 433MHz transceiver/receiver modules are used on a wide variety of applications that require wireless control.
-
-%\includegraphics[height=5cm]{download.jpg}
-%\pagebreak
-%\section*{iii.MPU6050 Gyro Sensor}
-
-%\includegraphics[height=5cm]{download.jpg}
-%\pagebreak
-%\section*{iii.MPU6050 Gyro Sensor}
-
-% \pagebreak
-
-% \includegraphics[height=5in]{ta.jpg}
-% \pagebreak
-
-% Receiver
-
-% \includegraphics[height=4in]{re.jpg}
-
-% \pagebreak
-\section{What does the future hold?}
-Plag is CLI based tool which means that it operates from the command line interface. One of its restraint is that it is limited to the Windows operating system only, i.e., it is not cross-platform. So, one of the foremost feature to be added is
-support for different operating systems. \par
+\section{Advancements required}
+Plag is CLI based tool which means that it operates from the command line interface. As of now, Plag is limited to the Windows operating system only, i.e., it is not cross-platform. So, one of the foremost feature to be added is support for different operating systems. \par
 At present, Plag is limited to detecting plagiarism in C++ files only which is a bit of trouble because there are many languages the assignments can be submitted in. So, support for a bunch of programming languages is to be added. \par
 Another upgrade is user customization. As of now, users do not have much control over the process of detection which is important for customizing the process according to the needs.
-% \section{Gantt Chart}
-
-% \includegraphics[height=4in]{re.jpg}
-
 
 
 \section{Conclusion}
-There has been a lot of research in the field of source code plagiarism detection and different kinds of solutions have been proposed from diving deep into the syntactical structure of the code to find out the similarity to matching code strings. The approach used in Plag is somewhere in the middle. Though, it does not dive into the syntactical structure, it tries to observe the semantics of the code, thus producing average results.
+There has been a lot of research in the field of source code plagiarism detection and different kinds of solutions have been proposed from diving deep into the syntactical structure of the code to matching code strings. The approach used in Plag is somewhere in the middle. Though, it does not dive into the syntactical structure, it tries to observe the semantics of the code, thus producing average results.
 
 \newpage
 
