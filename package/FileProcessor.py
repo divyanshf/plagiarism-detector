@@ -7,7 +7,7 @@ puncs = string.punctuation
 
 
 class FileStructure:
-    def __init__(self, name, document, processComment):
+    def __init__(self, name, document, processComment=False):
         self.filename = name
         self.file = None
         self.lines = []

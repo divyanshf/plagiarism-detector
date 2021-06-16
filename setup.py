@@ -19,8 +19,7 @@ setuptools.setup(
     install_requires=requirements,
     entry_points={
         'console_scripts': [
-            'plag = package.__main__:main',
-            'plag2 = package_test.__main__:start'
+            'plag = package.__main__:start',
         ]
     }
 )

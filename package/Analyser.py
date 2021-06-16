@@ -58,13 +58,15 @@ class PathAnalyser:
             text = path + ' does not exist!'
             typer.secho(text, fg=typer.colors.RED)
             raise typer.Exit()
+
         return files
 
     # Check the directory for files and return all that match
     def checkDirectory(self, path):
         files = []
         os.chdir(path)
-        for file in glob.glob(self.filetype):
+        ext = '*'+self.filetype
+        for file in glob.glob(ext):
             fs = self.getFileStructure(file)
             files.append(fs)
         return files
