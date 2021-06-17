@@ -1,7 +1,7 @@
 import os
 import typer
 import glob
-from .FileProcessor import FileStructure
+from .Processor import FileProcessor
 
 
 class PathAnalyser:
@@ -75,4 +75,4 @@ class PathAnalyser:
     def getFileStructure(self, path):
         _, filename = os.path.split(path)
         file = open(path, 'r')
-        return FileStructure(filename, file)
+        return FileProcessor.FileStructure(filename, file, self.filetype)

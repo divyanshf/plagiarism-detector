@@ -1,4 +1,3 @@
-from os import path
 from typing import Optional
 import typer
 from .Analyser import PathAnalyser
@@ -30,8 +29,7 @@ def calculateSimilarity(files):
     simCode = processCorpus(corpusCode, filenames, 'normal')
     result = simCode[0, :] * 100
     columns = ['Sim(Code)']
-    df = pd.DataFrame(result)
-    typer.echo(df)
+    return result, columns
 
 
 # Detect similarity
@@ -49,13 +47,26 @@ def compare(path1: str = typer.Argument(..., help='Path to the primary file'), p
         typer.secho(text, fg=typer.colors.RED)
         raise typer.Exit()
 
-    calculateSimilarity(files)
+    result, columns = calculateSimilarity(files)
+    df = pd.DataFrame(result, columns=columns)
+    typer.echo(df)
 
 
 # Extract features of the code
 @app.command()
-def extract(path: str = typer.Argument(..., help='Path to the file')):
-    typer.echo('Extract features.')
+def extract(path: str = typer.Argument(..., help='Path to the file'), filetype: str = typer.Argument('cpp', help='The extension of the files to be processed')):
+    filetype = filetype.lstrip('.')
+    analyser = PathAnalyser(filetype)
+    isFile, error = analyser.isFile(path)
+    if isFile:
+        fs = (analyser.processPath(path))[0]
+        typer.echo(fs.filename)
+        typer.echo(fs.nComments)
+        typer.echo(fs.nVariables)
+    else:
+        text = path + ' : ' + error
+        typer.secho(text, fg=typer.colors.RED)
+        raise typer.Exit()
 
 
 # Display the version
