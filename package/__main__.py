@@ -14,6 +14,8 @@ def processCorpus(corpus, filenames, globalForm):
     irp = IREProcessor()
 
     tdMatrix = irp.createTermDocumentMatrix(corpus)
+    df = pd.DataFrame(tdMatrix)
+    typer.echo(df)
 
     tdMatrix = irp.applyWeighting(tdMatrix, globalForm)
 
@@ -24,7 +26,7 @@ def processCorpus(corpus, filenames, globalForm):
 # Calculate similarity
 def calculateSimilarity(files):
     corpusCode = [doc.file for doc in files]
-    corpusComment = [doc.comments for doc in files]
+    # corpusComment = [doc.comments for doc in files]
     filenames = [doc.filename for doc in files]
     simCode = processCorpus(corpusCode, filenames, 'normal')
     result = simCode[0, :] * 100
@@ -42,6 +44,8 @@ def compare(path1: str = typer.Argument(..., help='Path to the primary file'), p
     isFile1, error = analyser.isFile(path1)
     if isFile1:
         files = analyser.processPath(path1) + analyser.processPath(path2)
+        for file in files:
+            file.processDocument()
     else:
         text = path1 + ' : ' + error
         typer.secho(text, fg=typer.colors.RED)
@@ -60,9 +64,10 @@ def extract(path: str = typer.Argument(..., help='Path to the file'), filetype: 
     isFile, error = analyser.isFile(path)
     if isFile:
         fs = (analyser.processPath(path))[0]
-        typer.echo(fs.filename)
-        typer.echo(fs.nComments)
-        typer.echo(fs.nVariables)
+        fs.processDocument()
+        # typer.echo(fs.filename)
+        # typer.echo(fs.nComments)
+        # typer.echo(fs.nVariables)
     else:
         text = path + ' : ' + error
         typer.secho(text, fg=typer.colors.RED)

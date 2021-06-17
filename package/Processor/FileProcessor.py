@@ -320,7 +320,7 @@ class FileStructure:
     # Get the language processor
     def getProcessor(self):
         processor = None
-        if self.filetype == 'cpp':
+        if self.filetype == '.cpp':
             processor = ProcessorCPP()
         return processor
 
@@ -328,24 +328,26 @@ class FileStructure:
     def extractFeatures(self):
         processor = self.getProcessor()
         if processor == None:
-            text = '.' + self.filetype + ' are not supported yet!'
+            text = self.filetype + ' are not supported yet!'
             typer.secho(text, fg=typer.colors.RED)
             raise typer.Exit()
 
-        self.stringPos = processor.extractStringPositions(self.file)
-
         # Comments Processing
         self.comments, self.commentsPos = processor.extractComments(self.file)
-        self.comments, self.commentsPos = self.checkStringExclusive(
-            self.comments, self.commentsPos, self.stringPos)
         self.nComments = len(self.comments)
         self.file = self.removeComments(self.commentsPos, self.file)
 
+        # Process strings after removing comments
+        self.stringPos = processor.extractStringPositions(self.file)
+
         # Variable Processing
-        self.variables, self.variablesPos, self.nVariables = processor.extractVariables(
+        self.variables, self.variablesPos = processor.extractVariables(
             self.file)
         self.variables, self.variablesPos = self.checkStringExclusive(
             self.variables, self.variablesPos, self.stringPos)
+        self.variables, self.variablesPos = processor.checkVariableDeclarations(
+            self.variables, self.variablesPos)
+        self.nVariables = processor.countVariables(self.variables)
 
     # Process the document
     def processDocument(self):
