@@ -50,6 +50,8 @@ def compare(path1: str = typer.Argument(..., help='Path to a file or folder'), p
         isDir, error = analyser.isDir(path1)
         if isDir:
             files = analyser.processPath(path1)
+            for file in files:
+                file.processDocument()
         else:
             text = path1 + ' : ' + error
             typer.secho(text, fg=typer.colors.RED)
