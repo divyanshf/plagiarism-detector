@@ -39,7 +39,7 @@ def calculateSimilarity(files):
 # SINGLE PATH : FOLDER
 # TWO PATHS : TWO FILES OR ONE FILE - ONE FOLDER
 @app.command()
-def compare(path1: str = typer.Argument(..., help='Path to a file or folder'), path2: str = typer.Argument('', help='Path to a file or folder'), filetype: str = typer.Argument('cpp', help='The extension of the files to be processed')):
+def compare(path1: str = typer.Argument(..., help='Path to a file or folder'), path2: str = typer.Argument('', help='Path to a file or folder'), filetype: str = typer.Option('cpp', help='The extension of the files to be processed')):
     # Remove leading period sign from the filetype
     filetype = filetype.lstrip('.')
 
