@@ -5,8 +5,17 @@ from .Processor.FileProcessor import FileStructure
 
 
 class PathAnalyser:
-    def __init__(self, filetype):
+    def __init__(self, filetype='cpp'):
         self.filetype = '.'+filetype
+
+    # Find and set extension
+    def setExtension(self, path):
+        try:
+            ext = (os.path.splitext(path))[1]
+            self.filetype = ext
+            return ext, None
+        except Exception as ex:
+            return None, str(ex)
 
     # Check if the path is a file
     def isFile(self, path):

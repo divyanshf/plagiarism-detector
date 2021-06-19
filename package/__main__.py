@@ -1,3 +1,4 @@
+from os import error
 from typing import Optional
 import typer
 from .Analyser import PathAnalyser
@@ -35,21 +36,35 @@ def calculateSimilarity(files):
 
 
 # Detect similarity
+# SINGLE PATH : FOLDER
+# TWO PATHS : TWO FILES OR ONE FILE - ONE FOLDER
 @app.command()
-def compare(path1: str = typer.Argument(..., help='Path to the primary file'), path2: str = typer.Argument(..., help='Path to another file or folder'), filetype: str = typer.Argument('cpp', help='The extension of the files to be processed')):
+def compare(path1: str = typer.Argument(..., help='Path to a file or folder'), path2: str = typer.Argument('', help='Path to a file or folder'), filetype: str = typer.Argument('cpp', help='The extension of the files to be processed')):
     # Remove leading period sign from the filetype
     filetype = filetype.lstrip('.')
 
     analyser = PathAnalyser(filetype)
-    isFile1, error = analyser.isFile(path1)
-    if isFile1:
-        files = analyser.processPath(path1) + analyser.processPath(path2)
-        for file in files:
-            file.processDocument()
+
+    # Check for single path
+    if path2 == '':
+        isDir, error = analyser.isDir(path1)
+        if isDir:
+            files = analyser.processPath(path1)
+        else:
+            text = path1 + ' : ' + error
+            typer.secho(text, fg=typer.colors.RED)
+            raise typer.Exit()
+    # Check for both paths
     else:
-        text = path1 + ' : ' + error
-        typer.secho(text, fg=typer.colors.RED)
-        raise typer.Exit()
+        isFile1, error = analyser.isFile(path1)
+        if isFile1:
+            files = analyser.processPath(path1) + analyser.processPath(path2)
+            for file in files:
+                file.processDocument()
+        else:
+            text = path1 + ' : ' + error
+            typer.secho(text, fg=typer.colors.RED)
+            raise typer.Exit()
 
     result, columns = calculateSimilarity(files)
     df = pd.DataFrame(result, columns=columns)
@@ -57,17 +72,14 @@ def compare(path1: str = typer.Argument(..., help='Path to the primary file'), p
 
 
 # Extract features of the code
+# THE PATH MUST LEAD TO A FILE ONLY!
 @app.command()
-def extract(path: str = typer.Argument(..., help='Path to the file'), filetype: str = typer.Argument('cpp', help='The extension of the files to be processed')):
-    filetype = filetype.lstrip('.')
-    analyser = PathAnalyser(filetype)
-    isFile, error = analyser.isFile(path)
-    if isFile:
+def extract(path: str = typer.Argument(..., help='Path to the file')):
+    analyser = PathAnalyser()
+    filetype, error = analyser.setExtension(path)
+    if filetype:
         fs = (analyser.processPath(path))[0]
         fs.processDocument()
-        # typer.echo(fs.filename)
-        # typer.echo(fs.nComments)
-        # typer.echo(fs.nVariables)
     else:
         text = path + ' : ' + error
         typer.secho(text, fg=typer.colors.RED)
