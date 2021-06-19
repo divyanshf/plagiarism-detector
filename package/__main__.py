@@ -1,5 +1,6 @@
 from os import error
 from typing import Optional
+import numpy as np
 import typer
 from .Analyser import PathAnalyser
 from .IREProcessor import IREProcessor
@@ -29,9 +30,15 @@ def calculateSimilarity(files):
     corpusCode = [doc.file for doc in files]
     # corpusComment = [doc.comments for doc in files]
     filenames = [doc.filename for doc in files]
+    nComments = [doc.nComments for doc in files]
+    nVariables = [doc.nVariables for doc in files]
     simCode = processCorpus(corpusCode, filenames, 'normal')
+
     result = simCode[0, :] * 100
-    columns = ['Sim(Code)']
+    result = np.vstack([result, nComments])
+    result = np.vstack([result, nVariables])
+
+    columns = ['Sim(Code)', '#Comments', '#Variables']
     return result, columns
 
 
@@ -69,7 +76,7 @@ def compare(path1: str = typer.Argument(..., help='Path to a file or folder'), p
             raise typer.Exit()
 
     result, columns = calculateSimilarity(files)
-    df = pd.DataFrame(result, columns=columns)
+    df = pd.DataFrame(result.transpose(), columns=columns)
     typer.echo(df)
 
 
