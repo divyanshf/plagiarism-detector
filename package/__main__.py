@@ -1,4 +1,3 @@
-from os import name
 from typing import Optional
 import numpy as np
 from numpy.core.defchararray import index
@@ -17,7 +16,7 @@ userpref = pref.initialize()
 
 # Typer app
 app = typer.Typer(help='Plagiarism Detection in source code files.')
-app.add_typer(prefapp, name='preference')
+app.add_typer(prefapp, name='preference', help='Customize preferences')
 
 
 # Process corpus
@@ -67,7 +66,6 @@ def calculateSimilarity(files, pcomment):
 @app.command(help='Compare source code files for similarity.')
 def compare(path1: str = typer.Argument(..., help='Path to a file or folder'), path2: str = typer.Argument('', help='Path to a file or folder'), filetype: str = typer.Option(userpref['filetype'], help='The extension of the files to be processed'), pcomment: bool = typer.Option(False, help='Process comments for similarity')):
     # Remove leading period sign from the filetype
-    typer.echo(filetype)
     filetype = filetype.lstrip('.')
 
     analyser = PathAnalyser(filetype)
@@ -95,10 +93,14 @@ def compare(path1: str = typer.Argument(..., help='Path to a file or folder'), p
             typer.secho(text, fg=typer.colors.RED)
             raise typer.Exit()
 
-    result, columns = calculateSimilarity(files, pcomment)
-    df = pd.DataFrame(result.transpose(), columns=columns,
-                      index=[fs.filename for fs in files])
-    typer.echo(df)
+    if len(files) != 0:
+        result, columns = calculateSimilarity(files, pcomment)
+        df = pd.DataFrame(result.transpose(), columns=columns,
+                          index=[fs.filename for fs in files])
+        typer.echo(df)
+    else:
+        text = 'No .' + filetype + ' files found!'
+        typer.secho(text, fg=typer.colors.RED)
 
 
 # Extract features of the code
@@ -118,15 +120,15 @@ def extract(path: str = typer.Argument(..., help='Path to the file or folder')):
             files = analyser.processPath(path)
             for file in files:
                 file.extractFeatures()
-            result, features = featureMatrix(files)
-            df = pd.DataFrame(
-                result, columns=[features], index=[fs.filename for fs in files])
+            if len(files) != 0:
+                result, features = featureMatrix(files)
+                df = pd.DataFrame(
+                    result, columns=[features], index=[fs.filename for fs in files])
+                typer.echo(df)
         else:
             text = path + ' : Invalid Path!'
             typer.secho(text, fg=typer.colors.RED)
             raise typer.Exit()
-
-    typer.echo(df)
 
 
 # Display the version
