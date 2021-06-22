@@ -116,6 +116,14 @@ def setpref(key: str = typer.Argument(..., help='Specify the key of the preferen
         raise typer.Exit()
 
 
+# Reset preferences
+@app.command(help='Reset all the preferences to default values.')
+def resetpref():
+    pref = Preference()
+    pref.resetPreferences(pref.getPreferencePath())
+    typer.secho('Preferences set to default!', fg=typer.colors.GREEN)
+
+
 # Display the version
 def versionCallback(value: bool):
     if value:

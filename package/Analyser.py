@@ -1,6 +1,7 @@
 import typer
-import sys
 import os
+import sys
+import stat
 import glob
 import pathlib
 from .Processor.FileProcessor import FileStructure
@@ -101,14 +102,18 @@ class Preference:
     # Initialize everything
     def initialize(self):
         path = self.getPreferencePath()
-        userpref = dict()
         isFile = self.isFile(path/'pref.txt')
         if isFile:
             userpref = self.loadPreferences(path)
         else:
-            userpref['filetype'] = 'cpp'
-            self.createPreferences(path=path, userpref=userpref)
+            self.resetPreferences(path)
         return userpref
+
+    # Reset preferences
+    def resetPreferences(self, path):
+        userpref = dict()
+        userpref['filetype'] = 'cpp'
+        self.createPreferences(path=path, userpref=userpref)
 
     # Check if file
     def isFile(self, path):
@@ -144,6 +149,7 @@ class Preference:
             key = key.lstrip()
             value = value.rstrip()
             result[key] = value
+        file.close()
         return result
 
     # Create Preferences
@@ -154,9 +160,11 @@ class Preference:
         if not os.path.exists(path):
             os.makedirs(path)
         try:
+            os.chmod(path/'pref.txt', stat.S_IWUSR)
             file = open(path/'pref.txt', 'w')
             file.write(prefs)
             file.close()
+            os.chmod(path/'pref.txt', 0o444)
         except Exception as ex:
             typer.secho(str(ex), fg=typer.colors.RED)
             raise typer.Exit()
