@@ -105,10 +105,15 @@ def extract(path: str = typer.Argument(..., help='Path to the file')):
 # Set preferences
 @app.command(help='Set user preference as required.')
 def setpref(key: str = typer.Argument(..., help='Specify the key of the preference'), value: str = typer.Argument(..., help='Specify the value of the preference')):
+    global userpref
     pref = Preference()
-    userpref[key] = value
-    pref.createPreferences(pref.getPreferencePath(), userpref)
-    typer.secho('Preferences set!', fg=typer.colors.GREEN)
+    if pref.check(key):
+        userpref[key] = value
+        pref.createPreferences(pref.getPreferencePath(), userpref)
+        typer.secho('Preferences set!', fg=typer.colors.GREEN)
+    else:
+        typer.secho('Invalid preference key!', fg=typer.colors.RED)
+        raise typer.Exit()
 
 
 # Display the version

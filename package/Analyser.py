@@ -95,6 +95,7 @@ class PathAnalyser:
 class Preference:
     # Get user preferences
     def __init__(self) -> None:
+        self.validKeys = ['filetype']
         self.home = pathlib.Path.home()
 
     # Initialize everything
@@ -112,6 +113,12 @@ class Preference:
     # Check if file
     def isFile(self, path):
         if os.path.isfile(path):
+            return True
+        return False
+
+    # Check for key validity
+    def check(self, key):
+        if key in self.validKeys:
             return True
         return False
 
