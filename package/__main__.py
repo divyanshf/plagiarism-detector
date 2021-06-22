@@ -13,7 +13,7 @@ userpref = pref.initialize()
 
 
 # Typer app
-app = typer.Typer()
+app = typer.Typer(help='Plagiarism Detection in source code files.')
 
 
 # Process corpus
@@ -48,7 +48,7 @@ def calculateSimilarity(files):
 # Detect similarity
 # SINGLE PATH : FOLDER
 # TWO PATHS : TWO FILES OR ONE FILE - ONE FOLDER
-@app.command()
+@app.command(help='Compare source code files for similarity.')
 def compare(path1: str = typer.Argument(..., help='Path to a file or folder'), path2: str = typer.Argument('', help='Path to a file or folder'), filetype: str = typer.Option(userpref['filetype'], help='The extension of the files to be processed')):
     # Remove leading period sign from the filetype
     typer.echo(filetype)
@@ -86,7 +86,7 @@ def compare(path1: str = typer.Argument(..., help='Path to a file or folder'), p
 
 # Extract features of the code
 # THE PATH MUST LEAD TO A FILE ONLY!
-@app.command()
+@app.command(help='Extract features from source code files.')
 def extract(path: str = typer.Argument(..., help='Path to the file')):
     analyser = PathAnalyser()
     filetype, error = analyser.setExtension(path)
@@ -103,7 +103,7 @@ def extract(path: str = typer.Argument(..., help='Path to the file')):
 
 
 # Set preferences
-@app.command()
+@app.command(help='Set user preference as required.')
 def setpref(key: str = typer.Argument(..., help='Specify the key of the preference'), value: str = typer.Argument(..., help='Specify the value of the preference')):
     pref = Preference()
     userpref[key] = value
