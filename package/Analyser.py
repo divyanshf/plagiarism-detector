@@ -97,6 +97,18 @@ class Preference:
     def __init__(self) -> None:
         self.home = pathlib.Path.home()
 
+    # Initialize everything
+    def initialize(self):
+        path = self.getPreferencePath()
+        userpref = dict()
+        isFile = self.isFile(path/'pref.txt')
+        if isFile:
+            userpref = self.loadPreferences(path)
+        else:
+            userpref['filetype'] = 'cpp'
+            self.createPreferences(path=path, userpref=userpref)
+        return userpref
+
     # Check if file
     def isFile(self, path):
         if os.path.isfile(path):

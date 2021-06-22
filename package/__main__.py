@@ -1,8 +1,5 @@
-from os import error
-from sys import path
 from typing import Optional
 import numpy as np
-from numpy.core.defchararray import index
 import typer
 from .Analyser import PathAnalyser, Preference
 from .IREProcessor import IREProcessor
@@ -11,8 +8,8 @@ import pandas as pd
 
 
 # Global Variables
-userpref = dict()
-userpref['filetype'] = 'cpp'
+pref = Preference()
+userpref = pref.initialize()
 
 
 # Typer app
@@ -54,6 +51,7 @@ def calculateSimilarity(files):
 @app.command()
 def compare(path1: str = typer.Argument(..., help='Path to a file or folder'), path2: str = typer.Argument('', help='Path to a file or folder'), filetype: str = typer.Option(userpref['filetype'], help='The extension of the files to be processed')):
     # Remove leading period sign from the filetype
+    typer.echo(filetype)
     filetype = filetype.lstrip('.')
 
     analyser = PathAnalyser(filetype)
@@ -104,6 +102,15 @@ def extract(path: str = typer.Argument(..., help='Path to the file')):
         raise typer.Exit()
 
 
+# Set preferences
+@app.command()
+def setpref(key: str = typer.Argument(..., help='Specify the key of the preference'), value: str = typer.Argument(..., help='Specify the value of the preference')):
+    pref = Preference()
+    userpref[key] = value
+    pref.createPreferences(pref.getPreferencePath(), userpref)
+    typer.secho('Preferences set!', fg=typer.colors.GREEN)
+
+
 # Display the version
 def versionCallback(value: bool):
     if value:
@@ -118,14 +125,6 @@ def main(version: Optional[bool] = typer.Option(None, "--version", callback=vers
 
 
 def start():
-    global userpref
-    pref = Preference()
-    prefPath = pref.getPreferencePath()
-    isFile = pref.isFile(prefPath/'pref.txt')
-    if isFile:
-        userpref = pref.loadPreferences(prefPath)
-    else:
-        pref.createPreferences(path=prefPath, userpref=userpref)
     app()
 
 
