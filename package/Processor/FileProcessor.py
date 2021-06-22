@@ -1,5 +1,5 @@
-import re
 import typer
+import numpy as np
 from nltk import PorterStemmer
 import string
 from .ProcessorCPP import ProcessorCPP
@@ -134,3 +134,11 @@ class FileStructure:
         self.extractFeatures()
         self.file = self.tokenize(self.file)
         self.commentsStr = self.tokenize(''.join(self.comments))
+
+
+# Create a feature matrix
+def featureMatrix(structure):
+    result = np.zeros(2)
+    result[0] = structure.nComments
+    result[1] = structure.nVariables
+    return result, ['#Comments', '#Variables']

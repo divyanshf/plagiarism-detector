@@ -1,10 +1,18 @@
 from os import error
+from sys import path
 from typing import Optional
 import numpy as np
+from numpy.core.defchararray import index
 import typer
-from .Analyser import PathAnalyser
+from .Analyser import PathAnalyser, Preference
 from .IREProcessor import IREProcessor
+from .Processor.FileProcessor import featureMatrix
 import pandas as pd
+
+
+# Global Variables
+userpref = dict()
+userpref['filetype'] = 'cpp'
 
 
 # Typer app
@@ -46,7 +54,7 @@ def calculateSimilarity(files):
 # SINGLE PATH : FOLDER
 # TWO PATHS : TWO FILES OR ONE FILE - ONE FOLDER
 @app.command()
-def compare(path1: str = typer.Argument(..., help='Path to a file or folder'), path2: str = typer.Argument('', help='Path to a file or folder'), filetype: str = typer.Option('cpp', help='The extension of the files to be processed')):
+def compare(path1: str = typer.Argument(..., help='Path to a file or folder'), path2: str = typer.Argument('', help='Path to a file or folder'), filetype: str = typer.Option(userpref['filetype'], help='The extension of the files to be processed')):
     # Remove leading period sign from the filetype
     filetype = filetype.lstrip('.')
 
@@ -88,7 +96,10 @@ def extract(path: str = typer.Argument(..., help='Path to the file')):
     filetype, error = analyser.setExtension(path)
     if filetype:
         fs = (analyser.processPath(path))[0]
-        fs.processDocument()
+        fs.extractFeatures()
+        result, features = featureMatrix(fs)
+        df = pd.DataFrame(result, columns=[fs.filename], index=[features])
+        typer.echo(df)
     else:
         text = path + ' : ' + error
         typer.secho(text, fg=typer.colors.RED)
@@ -109,6 +120,17 @@ def main(version: Optional[bool] = typer.Option(None, "--version", callback=vers
 
 
 def start():
+    global userpref
+    pref = Preference()
+    prefPath = pref.getPreferencePath()
+    analyser = PathAnalyser()
+    isFile = pref.isFile(prefPath/'pref.txt')
+    if isFile:
+        typer.echo('file')
+        userpref = pref.loadPreferences(prefPath)
+    else:
+        typer.echo('nofile')
+        pref.createPreferences(path=prefPath, userpref=userpref)
     app()
 
 

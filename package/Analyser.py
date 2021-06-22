@@ -1,6 +1,8 @@
-import os
 import typer
+import sys
+import os
 import glob
+import pathlib
 from .Processor.FileProcessor import FileStructure
 
 
@@ -86,3 +88,46 @@ class PathAnalyser:
         file = open(path, 'r')
         fs = FileStructure(filename, file, self.filetype)
         return fs
+
+
+# Preference Format
+# key=value
+class Preference:
+    # Get user preferences
+    def __init__(self) -> None:
+        self.home = pathlib.Path.home()
+
+    def isFile(self, path):
+        if os.path.isfile(path):
+            return True
+        return False
+
+    def getPreferencePath(self):
+        if sys.platform == 'linux':
+            return self.home / '.conifg/plag'
+        elif sys.platform == 'win32':
+            return self.home / 'AppData/plag'
+        elif sys.platform == 'darwin':
+            return self.home / 'Library/Application Support/plag'
+        else:
+            typer.secho('Platform not supported yet!', fg=typer.colors.RED)
+            raise typer.Exit()
+
+    # Load Preferences
+    def loadPreferences(self, path):
+        result = dict()
+        file = open(path/'pref.txt')
+        content = file.readlines()
+        typer.echo(content)
+
+    # Create Preferences
+    def createPreferences(self, path, userpref):
+        pref = 'filetype='+userpref['filetype']+'\n'
+        if not os.path.isfile(path/'pref.txt'):
+            os.makedirs(path)
+        try:
+            file = open(path/'pref.txt', 'w')
+            file.write(pref)
+            file.close()
+        except Exception as ex:
+            typer.secho(str(ex), fg=typer.colors.RED)
