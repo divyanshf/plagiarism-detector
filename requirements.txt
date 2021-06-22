@@ -2,6 +2,3 @@ typer
 numpy
 panda
 nltk
-colorama
-google
-argparse
