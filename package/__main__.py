@@ -1,5 +1,6 @@
 from typing import Optional
 import numpy as np
+from numpy.core.defchararray import index
 import typer
 from .Analyser import PathAnalyser, Preference
 from .IREProcessor import IREProcessor
@@ -59,7 +60,7 @@ def calculateSimilarity(files, pcomment):
 
 # Detect similarity
 # SINGLE PATH : FOLDER
-# TWO PATHS : TWO FILES OR ONE FILE - ONE FOLDER
+# TWO PATHS : (TWO FILES) or (ONE FILE and ONE FOLDER)
 @app.command(help='Compare source code files for similarity.')
 def compare(path1: str = typer.Argument(..., help='Path to a file or folder'), path2: str = typer.Argument('', help='Path to a file or folder'), filetype: str = typer.Option(userpref['filetype'], help='The extension of the files to be processed'), pcomment: bool = typer.Option(False, help='Process comments for similarity')):
     # Remove leading period sign from the filetype
@@ -92,26 +93,37 @@ def compare(path1: str = typer.Argument(..., help='Path to a file or folder'), p
             raise typer.Exit()
 
     result, columns = calculateSimilarity(files, pcomment)
-    df = pd.DataFrame(result.transpose(), columns=columns)
+    df = pd.DataFrame(result.transpose(), columns=columns,
+                      index=[fs.filename for fs in files])
     typer.echo(df)
 
 
 # Extract features of the code
 # THE PATH MUST LEAD TO A FILE ONLY!
 @app.command(help='Extract features from source code files.')
-def extract(path: str = typer.Argument(..., help='Path to the file')):
+def extract(path: str = typer.Argument(..., help='Path to the file or folder')):
     analyser = PathAnalyser()
     filetype, error = analyser.setExtension(path)
     if filetype:
         fs = (analyser.processPath(path))[0]
         fs.extractFeatures()
-        result, features = featureMatrix(fs)
-        df = pd.DataFrame(result, columns=[fs.filename], index=[features])
-        typer.echo(df)
+        result, features = featureMatrix([fs])
+        df = pd.DataFrame(result, columns=[features], index=[fs.filename])
     else:
-        text = path + ' : ' + error
-        typer.secho(text, fg=typer.colors.RED)
-        raise typer.Exit()
+        isDir, errDir = analyser.isDir(path)
+        if isDir:
+            files = analyser.processPath(path)
+            for file in files:
+                file.extractFeatures()
+            result, features = featureMatrix(files)
+            df = pd.DataFrame(
+                result, columns=[features], index=[fs.filename for fs in files])
+        else:
+            text = path + ' : Invalid Path!'
+            typer.secho(text, fg=typer.colors.RED)
+            raise typer.Exit()
+
+    typer.echo(df)
 
 
 # Set preferences

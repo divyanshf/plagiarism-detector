@@ -13,12 +13,12 @@ class PathAnalyser:
 
     # Find and set extension
     def setExtension(self, path):
-        try:
-            ext = (os.path.splitext(path))[1]
+        ext = (os.path.splitext(path))[1]
+        if ext != '':
             self.filetype = ext
             return ext, None
-        except Exception as ex:
-            return None, str(ex)
+        else:
+            return None, 'Invalid Path!'
 
     # Check if the path is a file
     def isFile(self, path):
