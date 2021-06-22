@@ -29,19 +29,31 @@ def processCorpus(corpus, filenames, globalForm):
 
 
 # Calculate similarity
-def calculateSimilarity(files):
-    corpusCode = [doc.file for doc in files]
-    # corpusComment = [doc.comments for doc in files]
+def calculateSimilarity(files, pcomment):
     filenames = [doc.filename for doc in files]
     nComments = [doc.nComments for doc in files]
     nVariables = [doc.nVariables for doc in files]
+    columns = []
+
+    corpusCode = [doc.file for doc in files]
+    corpusComment = [doc.commentsStr for doc in files]
+    # typer.echo(corpusComment)
+
     simCode = processCorpus(corpusCode, filenames, 'normal')
-
     result = simCode[0, :] * 100
-    result = np.vstack([result, nComments])
-    result = np.vstack([result, nVariables])
+    columns.append('Sim(Code)')
 
-    columns = ['Sim(Code)', '#Comments', '#Variables']
+    if pcomment:
+        simComment = processCorpus(corpusComment, filenames, 'idf')
+        result = np.vstack([result, simComment[0, :] * 100])
+        columns.append('Sim(Comments)')
+
+    result = np.vstack([result, nComments])
+    columns.append('#Comments')
+
+    result = np.vstack([result, nVariables])
+    columns.append('#Variables')
+
     return result, columns
 
 
@@ -49,7 +61,7 @@ def calculateSimilarity(files):
 # SINGLE PATH : FOLDER
 # TWO PATHS : TWO FILES OR ONE FILE - ONE FOLDER
 @app.command(help='Compare source code files for similarity.')
-def compare(path1: str = typer.Argument(..., help='Path to a file or folder'), path2: str = typer.Argument('', help='Path to a file or folder'), filetype: str = typer.Option(userpref['filetype'], help='The extension of the files to be processed')):
+def compare(path1: str = typer.Argument(..., help='Path to a file or folder'), path2: str = typer.Argument('', help='Path to a file or folder'), filetype: str = typer.Option(userpref['filetype'], help='The extension of the files to be processed'), pcomment: bool = typer.Option(False, help='Process comments for similarity')):
     # Remove leading period sign from the filetype
     typer.echo(filetype)
     filetype = filetype.lstrip('.')
@@ -79,7 +91,7 @@ def compare(path1: str = typer.Argument(..., help='Path to a file or folder'), p
             typer.secho(text, fg=typer.colors.RED)
             raise typer.Exit()
 
-    result, columns = calculateSimilarity(files)
+    result, columns = calculateSimilarity(files, pcomment)
     df = pd.DataFrame(result.transpose(), columns=columns)
     typer.echo(df)
 
