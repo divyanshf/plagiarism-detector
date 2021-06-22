@@ -24,8 +24,6 @@ def processCorpus(corpus, filenames, globalForm):
     irp = IREProcessor()
 
     tdMatrix = irp.createTermDocumentMatrix(corpus)
-    df = pd.DataFrame(tdMatrix)
-    typer.echo(df)
 
     tdMatrix = irp.applyWeighting(tdMatrix, globalForm)
 
@@ -123,13 +121,10 @@ def start():
     global userpref
     pref = Preference()
     prefPath = pref.getPreferencePath()
-    analyser = PathAnalyser()
     isFile = pref.isFile(prefPath/'pref.txt')
     if isFile:
-        typer.echo('file')
         userpref = pref.loadPreferences(prefPath)
     else:
-        typer.echo('nofile')
         pref.createPreferences(path=prefPath, userpref=userpref)
     app()
 

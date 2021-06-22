@@ -97,11 +97,13 @@ class Preference:
     def __init__(self) -> None:
         self.home = pathlib.Path.home()
 
+    # Check if file
     def isFile(self, path):
         if os.path.isfile(path):
             return True
         return False
 
+    # Get preference path for platform
     def getPreferencePath(self):
         if sys.platform == 'linux':
             return self.home / '.conifg/plag'
@@ -117,17 +119,25 @@ class Preference:
     def loadPreferences(self, path):
         result = dict()
         file = open(path/'pref.txt')
-        content = file.readlines()
-        typer.echo(content)
+        prefs = file.readlines()
+        for pref in prefs:
+            key, value = pref.split('=')
+            key = key.lstrip()
+            value = value.rstrip()
+            result[key] = value
+        return result
 
     # Create Preferences
     def createPreferences(self, path, userpref):
-        pref = 'filetype='+userpref['filetype']+'\n'
-        if not os.path.isfile(path/'pref.txt'):
+        prefs = ''
+        for key, value in userpref.items():
+            prefs += key+'='+value+'\n'
+        if not os.path.exists(path):
             os.makedirs(path)
         try:
             file = open(path/'pref.txt', 'w')
-            file.write(pref)
+            file.write(prefs)
             file.close()
         except Exception as ex:
             typer.secho(str(ex), fg=typer.colors.RED)
+            raise typer.Exit()
