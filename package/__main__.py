@@ -1,6 +1,5 @@
 from typing import Optional
 import numpy as np
-from numpy.core.defchararray import index
 import typer
 from .Analyser import PathAnalyser, Preference
 from .IREProcessor import IREProcessor
@@ -34,30 +33,55 @@ def processCorpus(corpus, filenames, globalForm):
 # Calculate similarity
 def calculateSimilarity(files, pcomment):
     filenames = [doc.filename for doc in files]
-    nComments = [doc.nComments for doc in files]
-    nVariables = [doc.nVariables for doc in files]
-    columns = []
+    # nComments = [doc.nComments for doc in files]
+    # nVariables = [doc.nVariables for doc in files]
+    # columns = []
 
     corpusCode = [doc.file for doc in files]
     corpusComment = [doc.commentsStr for doc in files]
-    # typer.echo(corpusComment)
 
     simCode = processCorpus(corpusCode, filenames, 'normal')
-    result = simCode[0, :] * 100
-    columns.append('Sim(Code)')
+    simCode = simCode * 100
+    # result = simCode[0, :] * 100
+    # columns.append('Sim(Code)')
 
     if pcomment:
         simComment = processCorpus(corpusComment, filenames, 'idf')
-        result = np.vstack([result, simComment[0, :] * 100])
-        columns.append('Sim(Comments)')
+        simComment = simComment * 100
+        # result = np.vstack([result, simComment[0, :] * 100])
+        # columns.append('Sim(Comments)')
+        # return [simCode, simComment]
 
-    result = np.vstack([result, nComments])
-    columns.append('#Comments')
+    return simCode
 
-    result = np.vstack([result, nVariables])
-    columns.append('#Variables')
 
-    return result, columns
+# Represent max two sims
+# Can use preference for threshold
+def representBinary(sims, files):
+    threshold = 20
+    simCode = np.tril(sims)
+    filenames = [file.filename for file in files]
+    bestIndices = np.argwhere(simCode > threshold)
+    bestIndices = list(filter(lambda x: x[0] != x[1], bestIndices))
+    result = np.zeros(len(bestIndices))
+    columns = []
+    for index, value in enumerate(bestIndices):
+        col = filenames[value[0]] + ' and ' + filenames[value[1]]
+        columns.append(col)
+        result[index] = simCode[value[0]][value[1]]
+    if len(bestIndices) > 0:
+        df = pd.DataFrame(result.transpose(), index=columns,
+                          columns=['Similarity'])
+        df = df.sort_values(by=['Similarity'], ascending=False)
+        typer.echo(df)
+    else:
+        typer.secho('NO PLAGIARISM ABOVE THRESHOLD FOUND.',
+                    fg=typer.colors.GREEN)
+
+
+# Represent multiple file sims
+def representMultiple(simCode, files):
+    filenames = [file.filename for file in files]
 
 
 # Detect similarity
@@ -70,6 +94,7 @@ def compare(path1: str = typer.Argument(..., help='Path to a file or folder'), p
 
     analyser = PathAnalyser(filetype)
 
+    rep = 'b'
     # Check for single path
     if path2 == '':
         isDir, error = analyser.isDir(path1)
@@ -83,21 +108,29 @@ def compare(path1: str = typer.Argument(..., help='Path to a file or folder'), p
             raise typer.Exit()
     # Check for both paths
     else:
-        isFile1, error = analyser.isFile(path1)
-        if isFile1:
+        filetype, error = analyser.setExtension(path1)
+        if filetype:
             files = analyser.processPath(path1) + analyser.processPath(path2)
             for file in files:
                 file.processDocument()
+            isDir2, error = analyser.isDir(path2)
+            if isDir2:
+                rep = 'm'
         else:
             text = path1 + ' : ' + error
             typer.secho(text, fg=typer.colors.RED)
             raise typer.Exit()
 
+    # Two ways to represent
+    # (FOLDER) and (FILE-FILE)  => BINARY
+    # (FILE-FOLDER)  => DATAFRAME
     if len(files) != 0:
-        result, columns = calculateSimilarity(files, pcomment)
-        df = pd.DataFrame(result.transpose(), columns=columns,
-                          index=[fs.filename for fs in files])
-        typer.echo(df)
+        result = calculateSimilarity(files, pcomment)
+        representBinary(result, files)
+        # if rep == 'b':
+        #     representBinary(result, files)
+        # else:
+        #     representMultiple(result, files)
     else:
         text = 'No .' + filetype + ' files found!'
         typer.secho(text, fg=typer.colors.RED)
@@ -114,6 +147,7 @@ def extract(path: str = typer.Argument(..., help='Path to the file or folder')):
         fs.extractFeatures()
         result, features = featureMatrix([fs])
         df = pd.DataFrame(result, columns=[features], index=[fs.filename])
+        typer.echo(df)
     else:
         isDir, errDir = analyser.isDir(path)
         if isDir:
@@ -125,6 +159,9 @@ def extract(path: str = typer.Argument(..., help='Path to the file or folder')):
                 df = pd.DataFrame(
                     result, columns=[features], index=[fs.filename for fs in files])
                 typer.echo(df)
+            else:
+                typer.secho('No files found!', fg=typer.colors.RED)
+                raise typer.Exit()
         else:
             text = path + ' : Invalid Path!'
             typer.secho(text, fg=typer.colors.RED)
