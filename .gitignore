@@ -2,4 +2,8 @@
 /**/__pycache__/
 /build
 /dist
-/plag_cli.egg-info
+/*.egg-info/
+develop-eggs/
+eggs/
+.eggs/
+*.egg
