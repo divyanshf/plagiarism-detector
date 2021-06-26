@@ -10,7 +10,7 @@ app = typer.Typer()
 @app.command(help='Set user preference as required.')
 def set(key: str = typer.Argument(..., help='Specify the key of the preference'), value: str = typer.Argument(..., help='Specify the value of the preference')):
     pref = Preference()
-    if pref.check(key):
+    if pref.check(key, value):
         userpref = pref.loadPreferences(pref.getPreferencePath())
         userpref[key] = value
         pref.createPreferences(pref.getPreferencePath(), userpref)

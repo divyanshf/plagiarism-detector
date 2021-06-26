@@ -124,10 +124,30 @@ class Preference:
         return False
 
     # Check for key validity
-    def check(self, key):
+    def check(self, key, value):
         if key in self.validKeys:
-            return True
-        return False
+            if key == 'result_path':
+                if os.path.exists(value):
+                    return True
+                else:
+                    typer.secho('Path does not exist!', fg=typer.colors.RED)
+                    raise typer.Exit()
+            elif key == 'filetype':
+                if value == 'cpp':
+                    return True
+                else:
+                    typer.secho('Unsupported filetype!',
+                                fg=typer.colors.RED)
+                    raise typer.Exit()
+            elif key == 'threshold':
+                value = float(value)
+                if value in range(0, 100):
+                    return True
+                else:
+                    typer.secho('Invalid threshold!', fg=typer.colors.RED)
+                    raise typer.Exit()
+        else:
+            return False
 
     # Get preference path for platform
     def getPreferencePath(self):

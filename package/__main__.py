@@ -80,7 +80,7 @@ def saveResults(dataframe):
 # Represent max two sims
 # Can use preference for threshold
 def representBinary(sims, files):
-    threshold = 20
+    threshold = float(userpref['threshold'])
     simCode = np.tril(sims)
     filenames = [file.filename for file in files]
     bestIndices = np.argwhere(simCode > threshold)
