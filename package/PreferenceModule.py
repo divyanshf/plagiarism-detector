@@ -1,3 +1,4 @@
+from os import path
 import typer
 from .Analyser import Preference
 
@@ -11,6 +12,8 @@ app = typer.Typer()
 def set(key: str = typer.Argument(..., help='Specify the key of the preference'), value: str = typer.Argument(..., help='Specify the value of the preference')):
     pref = Preference()
     if pref.check(key, value):
+        if key == 'result_path':
+            value = path.abspath(value)
         userpref = pref.loadPreferences(pref.getPreferencePath())
         userpref[key] = value
         pref.createPreferences(pref.getPreferencePath(), userpref)
