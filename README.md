@@ -39,3 +39,6 @@ plag extract ../data/file1.cpp
   ```
   plag preference reset
   ```
+
+## Issues
+- In case of permission errors, try running the terminal as administrator.
