@@ -1,11 +1,14 @@
+import os
+import stat
 from typing import Optional
 import numpy as np
 import typer
+import datetime
+import pandas as pd
 from .Analyser import PathAnalyser, Preference
 from .IREProcessor import IREProcessor
 from .Processor.FileProcessor import featureMatrix
 from .PreferenceModule import app as prefapp
-import pandas as pd
 
 
 # Global Variables
@@ -55,6 +58,25 @@ def calculateSimilarity(files, pcomment):
     return simCode
 
 
+def saveResults(dataframe):
+    timestamp = datetime.datetime.now()
+    date = timestamp.strftime("%Y-%m-%d")
+    time = timestamp.strftime("%I-%M-%S %p")
+    # path = userpref['result_path'] + '\\result'
+    path = userpref['result_path'] + '\\' + date
+    try:
+        if not(os.path.exists(path)):
+            os.makedirs(path)
+        # os.chmod(path, stat.S_IRWXO)
+        path = path + '\\' + time + '.csv'
+        dataframe.to_csv(path)
+        result = 'Saved to ' + path
+        typer.secho(result, fg=typer.colors.GREEN)
+    except Exception as ex:
+        typer.secho(str(ex), fg=typer.colors.RED)
+        raise typer.Exit()
+
+
 # Represent max two sims
 # Can use preference for threshold
 def representBinary(sims, files):
@@ -73,7 +95,7 @@ def representBinary(sims, files):
         df = pd.DataFrame(result.transpose(), index=columns,
                           columns=['Similarity'])
         df = df.sort_values(by=['Similarity'], ascending=False)
-        typer.echo(df)
+        saveResults(df)
     else:
         typer.secho('NO PLAGIARISM ABOVE THRESHOLD FOUND.',
                     fg=typer.colors.GREEN)

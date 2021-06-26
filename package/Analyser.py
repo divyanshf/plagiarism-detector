@@ -18,7 +18,7 @@ class PathAnalyser:
             self.filetype = ext
             return ext, None
         else:
-            return None, 'Invalid Path!'
+            return None, 'Not a file!'
 
     # Check if the path is a file
     def isFile(self, path):
@@ -96,7 +96,7 @@ class PathAnalyser:
 class Preference:
     # Get user preferences
     def __init__(self) -> None:
-        self.validKeys = ['filetype']
+        self.validKeys = ['filetype', 'threshold', 'result_path']
         self.home = pathlib.Path.home()
 
     # Initialize everything
@@ -113,6 +113,8 @@ class Preference:
     def resetPreferences(self, path):
         userpref = dict()
         userpref['filetype'] = 'cpp'
+        userpref['threshold'] = str(20)
+        userpref['result_path'] = str(path)
         self.createPreferences(path=path, userpref=userpref)
 
     # Check if file
