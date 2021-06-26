@@ -193,7 +193,7 @@ def extract(path: str = typer.Argument(..., help='Path to the file or folder')):
 # Display the version
 def versionCallback(value: bool):
     if value:
-        typer.echo('version=0.1')
+        typer.echo('version=1.0')
         raise typer.Exit()
 
 
