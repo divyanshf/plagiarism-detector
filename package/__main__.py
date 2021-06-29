@@ -1,5 +1,4 @@
 import os
-import stat
 from typing import Optional
 import numpy as np
 import typer
@@ -45,15 +44,13 @@ def calculateSimilarity(files, pcomment):
 
     simCode = processCorpus(corpusCode, filenames, 'normal')
     simCode = simCode * 100
-    # result = simCode[0, :] * 100
-    # columns.append('Sim(Code)')
 
     if pcomment:
+        commentsWeight = 5  # In percentage
         simComment = processCorpus(corpusComment, filenames, 'idf')
         simComment = simComment * 100
-        # result = np.vstack([result, simComment[0, :] * 100])
-        # columns.append('Sim(Comments)')
-        # return [simCode, simComment]
+        simCode = ((100 - commentsWeight) * simCode +
+                   commentsWeight * simComment) / 100
 
     return simCode
 
@@ -122,6 +119,7 @@ def compare(path1: str = typer.Argument(..., help='Path to a file or folder'), p
         isDir, error = analyser.isDir(path1)
         if isDir:
             files = analyser.processPath(path1)
+            typer.secho('Processing files ...', fg=typer.colors.YELLOW)
             for file in files:
                 file.processDocument()
         else:
@@ -133,6 +131,7 @@ def compare(path1: str = typer.Argument(..., help='Path to a file or folder'), p
         filetype, error = analyser.setExtension(path1)
         if filetype:
             files = analyser.processPath(path1) + analyser.processPath(path2)
+            typer.secho('Processing files ...', fg=typer.colors.YELLOW)
             for file in files:
                 file.processDocument()
             isDir2, error = analyser.isDir(path2)
