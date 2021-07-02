@@ -141,7 +141,7 @@ class Preference:
                     raise typer.Exit()
             elif key == 'threshold':
                 value = float(value)
-                if value in range(0, 100):
+                if value in range(1, 100):
                     return True
                 else:
                     typer.secho('Invalid threshold!', fg=typer.colors.RED)
