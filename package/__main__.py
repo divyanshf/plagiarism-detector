@@ -49,13 +49,14 @@ def calculateSimilarity(files, pcomment):
         commentsWeight = 5  # In percentage
         simComment = processCorpus(corpusComment, filenames, 'idf')
         simComment = simComment * 100
-        simCode = ((100 - commentsWeight) * simCode +
-                   commentsWeight * simComment) / 100
+        # simCode = ((100 - commentsWeight) * simCode +
+        #            commentsWeight * simComment) / 100
 
     return simCode
 
 
 def saveResults(dataframe):
+    typer.echo(dataframe)
     timestamp = datetime.datetime.now()
     date = timestamp.strftime("%Y-%m-%d")
     time = timestamp.strftime("%I-%M-%S %p")
@@ -78,9 +79,9 @@ def saveResults(dataframe):
 # Can use preference for threshold
 def representBinary(sims, files):
     threshold = float(userpref['threshold'])
-    simCode = np.tril(sims)
+    simCode = np.triu(sims)
     filenames = [file.filename for file in files]
-    bestIndices = np.argwhere(simCode > threshold)
+    bestIndices = np.argwhere(simCode >= threshold)
     bestIndices = list(filter(lambda x: x[0] != x[1], bestIndices))
     result = np.zeros(len(bestIndices))
     columns = []
@@ -99,8 +100,20 @@ def representBinary(sims, files):
 
 
 # Represent multiple file sims
-def representMultiple(simCode, files):
+def representPrimary(simCode, files):
+    threshold = float(userpref['threshold'])
     filenames = [file.filename for file in files]
+    filenames[0] = 'PRIMARY'
+    columns = []
+    simCode = simCode[0, :]
+    bestIndices = np.argwhere(simCode >= threshold)
+    result = np.zeros(len(bestIndices))
+    for index, value in enumerate(bestIndices):
+        result[index] = simCode[value[0]]
+        columns.append(filenames[value[0]])
+    df = pd.DataFrame(result, columns=['Similarity'], index=[columns])
+    df = df.sort_values(by=['Similarity'], ascending=False)
+    saveResults(df)
 
 
 # Detect similarity
@@ -136,7 +149,7 @@ def compare(path1: str = typer.Argument(..., help='Path to a file or folder'), p
                 file.processDocument()
             isDir2, error = analyser.isDir(path2)
             if isDir2:
-                rep = 'm'
+                rep = 'p'
         else:
             text = path1 + ' : ' + error
             typer.secho(text, fg=typer.colors.RED)
@@ -147,11 +160,11 @@ def compare(path1: str = typer.Argument(..., help='Path to a file or folder'), p
     # (FILE-FOLDER)  => DATAFRAME
     if len(files) != 0:
         result = calculateSimilarity(files, pcomment)
-        representBinary(result, files)
-        # if rep == 'b':
-        #     representBinary(result, files)
-        # else:
-        #     representMultiple(result, files)
+        # representBinary(result, files)
+        if rep == 'b':
+            representBinary(result, files)
+        else:
+            representPrimary(result, files)
     else:
         text = 'No .' + filetype + ' files found!'
         typer.secho(text, fg=typer.colors.RED)
