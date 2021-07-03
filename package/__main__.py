@@ -21,15 +21,23 @@ app.add_typer(prefapp, name='preference', help='Customize preferences')
 
 
 # Process corpus
-def processCorpus(corpus, filenames, globalForm):
+def processCorpus(corpus, globalForm):
     irp = IREProcessor()
 
     tdMatrix = irp.createTermDocumentMatrix(corpus)
-
     tdMatrix = irp.applyWeighting(tdMatrix, globalForm)
-
     similarity = irp.calculateSimilarity(tdMatrix)
+
     return similarity
+
+
+# Process features
+def processFeatures(corpus):
+    irp = IREProcessor()
+    featMatrix, _ = featureMatrix(corpus)
+    simFeatures = irp.calculateSimilarity(featMatrix)
+
+    return simFeatures
 
 
 # Calculate similarity
@@ -39,7 +47,7 @@ def calculateSimilarity(files, pcomment):
     corpusCode = [doc.file for doc in files]
     corpusComment = [doc.commentsStr for doc in files]
 
-    simCode = processCorpus(corpusCode, filenames, 'normal')
+    simCode = processCorpus(corpusCode, 'normal')
     simCode = simCode * 100
 
     if pcomment:
@@ -49,11 +57,14 @@ def calculateSimilarity(files, pcomment):
         simCode = ((100 - commentsWeight) * simCode +
                    commentsWeight * simComment) / 100
 
+    simFeatures = processFeatures(files)
+    simCode = (simCode + simFeatures) / 2
+
     return simCode
 
 
+# Save results to a csv file
 def saveResults(dataframe):
-    typer.echo(dataframe)
     timestamp = datetime.datetime.now()
     date = timestamp.strftime("%Y-%m-%d")
     time = timestamp.strftime("%I-%M-%S %p")
