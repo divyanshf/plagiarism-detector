@@ -37,7 +37,8 @@ def show():
     pref = Preference()
     userpref = pref.loadPreferences(pref.getPreferencePath())
     for key, value in userpref.items():
-        text = key + ' : ' + value
+        text = typer.style(key, fg=typer.colors.YELLOW) + \
+            ' : ' + typer.style(value, fg=typer.colors.CYAN)
         typer.echo(text)
 
 
