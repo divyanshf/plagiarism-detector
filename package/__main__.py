@@ -64,19 +64,28 @@ def calculateSimilarity(files, pcomment):
 
 
 # Save results to a csv file
-def saveResults(dataframe):
+def saveResults(dataframe, paths):
     timestamp = datetime.datetime.now()
     date = timestamp.strftime("%Y-%m-%d")
     time = timestamp.strftime("%I-%M-%S %p")
-    # path = userpref['result_path'] + '\\result'
-    path = userpref['result_path'] + '\\' + date
+    basepath = userpref['result_path'] + '\\' + date + '\\' + time
     try:
-        if not(os.path.exists(path)):
-            os.makedirs(path)
+        if not(os.path.exists(basepath)):
+            os.makedirs(basepath)
         # os.chmod(path, stat.S_IRWXO)
-        path = path + '\\' + time + '.csv'
+        path = basepath + '\\' + 'result.csv'
         dataframe.to_csv(path)
-        result = 'Saved to ' + path
+        with open(basepath + '\\readme.txt', 'w') as file:
+            text = ''
+            for path in paths:
+                if path:
+                    text = text + 'Input : ' + os.path.abspath(path) + '\n'
+            text = text + 'Preferences used:\n'
+            for key, value in userpref.items():
+                text = text + key + ' : ' + value + '\n'
+            file.write(text)
+            file.close()
+        result = 'Saved to ' + basepath
         typer.secho(result, fg=typer.colors.GREEN)
     except Exception as ex:
         typer.secho(str(ex), fg=typer.colors.RED)
@@ -85,7 +94,7 @@ def saveResults(dataframe):
 
 # Represent max two sims
 # Can use preference for threshold
-def representBinary(sims, files):
+def representBinary(sims, files, paths):
     threshold = float(userpref['threshold'])
     simCode = np.triu(sims)
     filenames = [file.filename for file in files]
@@ -101,14 +110,14 @@ def representBinary(sims, files):
         df = pd.DataFrame(result.transpose(), index=columns,
                           columns=['Similarity'])
         df = df.sort_values(by=['Similarity'], ascending=False)
-        saveResults(df)
+        saveResults(df, paths)
     else:
         typer.secho('NO PLAGIARISM ABOVE THRESHOLD FOUND.',
                     fg=typer.colors.GREEN)
 
 
 # Represent multiple file sims
-def representPrimary(simCode, files):
+def representPrimary(simCode, files, paths):
     threshold = float(userpref['threshold'])
     filenames = [file.filename for file in files]
     filenames[0] = 'PRIMARY'
@@ -121,7 +130,7 @@ def representPrimary(simCode, files):
         columns.append(filenames[value[0]])
     df = pd.DataFrame(result, columns=['Similarity'], index=[columns])
     df = df.sort_values(by=['Similarity'], ascending=False)
-    saveResults(df)
+    saveResults(df, paths)
 
 
 # Detect similarity
@@ -133,6 +142,7 @@ def compare(path1: str = typer.Argument(..., help='Path to a file or folder'), p
     filetype = filetype.lstrip('.')
 
     analyser = PathAnalyser(filetype)
+    userpref['filetype'] = filetype
 
     rep = 'b'
     # Check for single path
@@ -140,7 +150,8 @@ def compare(path1: str = typer.Argument(..., help='Path to a file or folder'), p
         isDir, error = analyser.isDir(path1)
         if isDir:
             files = analyser.processPath(path1)
-            typer.secho('Processing files ...', fg=typer.colors.YELLOW)
+            if len(files) > 0:
+                typer.secho('Processing files ...', fg=typer.colors.YELLOW)
             for file in files:
                 file.processDocument()
         else:
@@ -152,7 +163,8 @@ def compare(path1: str = typer.Argument(..., help='Path to a file or folder'), p
         filetype, error = analyser.setExtension(path1)
         if filetype:
             files = analyser.processPath(path1) + analyser.processPath(path2)
-            typer.secho('Processing files ...', fg=typer.colors.YELLOW)
+            if len(files) > 0:
+                typer.secho('Processing files ...', fg=typer.colors.YELLOW)
             for file in files:
                 file.processDocument()
             isDir2, error = analyser.isDir(path2)
@@ -168,11 +180,10 @@ def compare(path1: str = typer.Argument(..., help='Path to a file or folder'), p
     # (FILE-FOLDER)  => DATAFRAME
     if len(files) != 0:
         result = calculateSimilarity(files, pcomment)
-        # representBinary(result, files)
         if rep == 'b':
-            representBinary(result, files)
+            representBinary(result, files, [path1, path2])
         else:
-            representPrimary(result, files)
+            representPrimary(result, files, [path1, path2])
     else:
         text = 'No .' + filetype + ' files found!'
         typer.secho(text, fg=typer.colors.RED)
