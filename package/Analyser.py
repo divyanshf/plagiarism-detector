@@ -115,6 +115,7 @@ class Preference:
         userpref['filetype'] = 'cpp'
         userpref['threshold'] = str(20)
         userpref['result_path'] = str(path)
+        userpref['comment_weight'] = str(5)
         self.createPreferences(path=path, userpref=userpref)
 
     # Check if file
@@ -123,7 +124,7 @@ class Preference:
             return True
         return False
 
-    # Check for key validity
+    # Check for key, value validity
     def check(self, key, value):
         if key in self.validKeys:
             if key == 'result_path':
@@ -145,6 +146,13 @@ class Preference:
                     return True
                 else:
                     typer.secho('Invalid threshold!', fg=typer.colors.RED)
+                    raise typer.Exit()
+            elif key == 'comment_weight':
+                value = float(value)
+                if value in range(0, 10):
+                    return True
+                else:
+                    typer.secho('Invalid comment weight!', fg=typer.colors.RED)
                     raise typer.Exit()
         else:
             return False

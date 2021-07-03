@@ -35,9 +35,6 @@ def processCorpus(corpus, filenames, globalForm):
 # Calculate similarity
 def calculateSimilarity(files, pcomment):
     filenames = [doc.filename for doc in files]
-    # nComments = [doc.nComments for doc in files]
-    # nVariables = [doc.nVariables for doc in files]
-    # columns = []
 
     corpusCode = [doc.file for doc in files]
     corpusComment = [doc.commentsStr for doc in files]
@@ -46,11 +43,11 @@ def calculateSimilarity(files, pcomment):
     simCode = simCode * 100
 
     if pcomment:
-        commentsWeight = 5  # In percentage
+        commentsWeight = float(userpref['comments_weight'])  # In percentage
         simComment = processCorpus(corpusComment, filenames, 'idf')
         simComment = simComment * 100
-        # simCode = ((100 - commentsWeight) * simCode +
-        #            commentsWeight * simComment) / 100
+        simCode = ((100 - commentsWeight) * simCode +
+                   commentsWeight * simComment) / 100
 
     return simCode
 
