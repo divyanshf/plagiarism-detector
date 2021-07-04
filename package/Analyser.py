@@ -106,7 +106,7 @@ class Preference:
         if isFile:
             userpref = self.loadPreferences(path)
         else:
-            self.resetPreferences(path)
+            userpref = self.resetPreferences(path)
         return userpref
 
     # Reset preferences
@@ -117,6 +117,7 @@ class Preference:
         userpref['result_path'] = str(path)
         userpref['comment_weight'] = str(5)
         self.createPreferences(path=path, userpref=userpref)
+        return userpref
 
     # Check if file
     def isFile(self, path):
@@ -190,11 +191,11 @@ class Preference:
         if not os.path.exists(path):
             os.makedirs(path)
         try:
-            os.chmod(path/'pref.txt', stat.S_IWUSR)
-            file = open(path/'pref.txt', 'w')
-            file.write(prefs)
-            file.close()
-            os.chmod(path/'pref.txt', 0o444)
+            with open(path/'pref.txt', 'w') as file:
+                os.chmod(path/'pref.txt', stat.S_IWUSR)
+                file.write(prefs)
+                file.close()
+                os.chmod(path/'pref.txt', 0o444)
         except Exception as ex:
             typer.secho(str(ex), fg=typer.colors.RED)
             raise typer.Exit()
