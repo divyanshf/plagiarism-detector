@@ -149,19 +149,19 @@ def compare(path1: str = typer.Argument(..., help='Path to a file or folder'), p
         isDir, error = analyser.isDir(path1)
         if isDir:
             files = analyser.processPath(path1)
-            for file in files:
-                # Notify user
-                text = f'{file.filename} : Processing...\r'
+            # Notify user
+            if len(files) > 0:
+                text = 'Processing...\r'
                 typer.secho(text, fg=typer.colors.YELLOW, nl=False)
-
-                # Process features
+            # Process features
+            for file in files:
                 file.processDocument()
-
-                # Notify user
+            # Notify user
+            if len(files) > 0:
                 lText = len(text)
                 empString = (' ' * lText) + '\r'
                 typer.echo(empString, nl=False)
-                text = f'{file.filename} : Processed!'
+                text = 'Processed!'
                 typer.secho(text, fg=typer.colors.GREEN)
         else:
             text = path1 + ' : ' + error
@@ -172,19 +172,19 @@ def compare(path1: str = typer.Argument(..., help='Path to a file or folder'), p
         filetype, error = analyser.setExtension(path1)
         if filetype:
             files = analyser.processPath(path1) + analyser.processPath(path2)
-            for file in files:
-                # Notify user
-                text = f'{file.filename} : Processing...\r'
+            # Notify user
+            if len(files) > 0:
+                text = 'Processing...\r'
                 typer.secho(text, fg=typer.colors.YELLOW, nl=False)
-
-                # Process features
+            # Process features
+            for file in files:
                 file.processDocument()
-
-                # Notify user
+            # Notify user
+            if len(files) > 0:
                 lText = len(text)
                 empString = (' ' * lText) + '\r'
                 typer.echo(empString, nl=False)
-                text = f'{file.filename} : Processed!'
+                text = 'Processed!'
                 typer.secho(text, fg=typer.colors.GREEN)
             isDir2, error = analyser.isDir(path2)
             if isDir2:
@@ -224,21 +224,22 @@ def extract(path: str = typer.Argument(..., help='Path to the file or folder')):
         isDir, errDir = analyser.isDir(path)
         if isDir:
             files = analyser.processPath(path)
-            for file in files:
-                # Notify user
+            # Notify user
+            if len(files) > 0:
                 text = f'{file.filename} : Processing...\r'
                 typer.secho(text, fg=typer.colors.YELLOW, nl=False)
-
+            for file in files:
                 # Extract features
                 file.extractFeatures()
-
+            if len(files) != 0:
                 # Notify user
                 lText = len(text)
                 empString = (' ' * lText) + '\r'
                 typer.echo(empString, nl=False)
                 text = f'{file.filename} : Processed!'
                 typer.secho(text, fg=typer.colors.GREEN)
-            if len(files) != 0:
+
+                # Get feature matrix
                 result, features = featureMatrix(files)
                 df = pd.DataFrame(
                     result, columns=[features], index=[fs.filename for fs in files])
