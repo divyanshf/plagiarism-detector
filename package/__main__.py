@@ -93,7 +93,6 @@ def saveResults(dataframe, paths):
 
 
 # Represent max two sims
-# Can use preference for threshold
 def representBinary(sims, files, paths):
     threshold = float(userpref['threshold'])
     simCode = np.triu(sims)
@@ -150,10 +149,20 @@ def compare(path1: str = typer.Argument(..., help='Path to a file or folder'), p
         isDir, error = analyser.isDir(path1)
         if isDir:
             files = analyser.processPath(path1)
-            if len(files) > 0:
-                typer.secho('Processing files ...', fg=typer.colors.YELLOW)
             for file in files:
+                # Notify user
+                text = f'{file.filename} : Processing...\r'
+                typer.secho(text, fg=typer.colors.YELLOW, nl=False)
+
+                # Process features
                 file.processDocument()
+
+                # Notify user
+                lText = len(text)
+                empString = (' ' * lText) + '\r'
+                typer.echo(empString, nl=False)
+                text = f'{file.filename} : Processed!'
+                typer.secho(text, fg=typer.colors.GREEN)
         else:
             text = path1 + ' : ' + error
             typer.secho(text, fg=typer.colors.RED)
@@ -163,10 +172,20 @@ def compare(path1: str = typer.Argument(..., help='Path to a file or folder'), p
         filetype, error = analyser.setExtension(path1)
         if filetype:
             files = analyser.processPath(path1) + analyser.processPath(path2)
-            if len(files) > 0:
-                typer.secho('Processing files ...', fg=typer.colors.YELLOW)
             for file in files:
+                # Notify user
+                text = f'{file.filename} : Processing...\r'
+                typer.secho(text, fg=typer.colors.YELLOW, nl=False)
+
+                # Process features
                 file.processDocument()
+
+                # Notify user
+                lText = len(text)
+                empString = (' ' * lText) + '\r'
+                typer.echo(empString, nl=False)
+                text = f'{file.filename} : Processed!'
+                typer.secho(text, fg=typer.colors.GREEN)
             isDir2, error = analyser.isDir(path2)
             if isDir2:
                 rep = 'p'
@@ -206,7 +225,19 @@ def extract(path: str = typer.Argument(..., help='Path to the file or folder')):
         if isDir:
             files = analyser.processPath(path)
             for file in files:
+                # Notify user
+                text = f'{file.filename} : Processing...\r'
+                typer.secho(text, fg=typer.colors.YELLOW, nl=False)
+
+                # Extract features
                 file.extractFeatures()
+
+                # Notify user
+                lText = len(text)
+                empString = (' ' * lText) + '\r'
+                typer.echo(empString, nl=False)
+                text = f'{file.filename} : Processed!'
+                typer.secho(text, fg=typer.colors.GREEN)
             if len(files) != 0:
                 result, features = featureMatrix(files)
                 df = pd.DataFrame(
