@@ -86,7 +86,7 @@ class PathAnalyser:
     # Get the file structure for a file
     def getFileStructure(self, path):
         _, filename = os.path.split(path)
-        file = open(path, 'r')
+        file = open(path, 'r', encoding='utf8')
         fs = FileStructure(filename, file, self.filetype)
         return fs
 
