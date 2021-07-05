@@ -191,8 +191,9 @@ class Preference:
         if not os.path.exists(path):
             os.makedirs(path)
         try:
-            with open(path/'pref.txt', 'w') as file:
+            if os.path.isfile(path/'pref.txt'):
                 os.chmod(path/'pref.txt', stat.S_IWUSR)
+            with open(path/'pref.txt', 'w') as file:
                 file.write(prefs)
                 file.close()
                 os.chmod(path/'pref.txt', 0o444)
