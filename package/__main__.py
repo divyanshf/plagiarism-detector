@@ -4,7 +4,8 @@ import numpy as np
 import typer
 import pandas as pd
 from .ScreenProcessor.ScreenProcessor import ScreenProcessor
-from .Analyser import PathAnalyser, Preference
+from .Analysers.PathAnalyser import PathAnalyser
+from .Analysers.PreferenceAnalyser import Preference
 from .IREProcessor import IREProcessor
 from .Processor.FileProcessor import featureMatrix
 from .PreferenceModule import app as prefapp
