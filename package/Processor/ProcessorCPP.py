@@ -1,7 +1,5 @@
 import re
 
-import typer
-
 
 cppDatatypes = ['int', 'char', 'bool',
                 'float', 'double', 'void', 'wchar_t']

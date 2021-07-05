@@ -1,6 +1,6 @@
 from os import path
 import typer
-from .Analyser import Preference
+from ..Analysers.PreferenceAnalyser import Preference
 
 
 # App

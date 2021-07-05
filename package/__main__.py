@@ -1,14 +1,12 @@
-import os
 from typing import Optional
-import numpy as np
 import typer
 import pandas as pd
 from .ScreenProcessor.ScreenProcessor import ScreenProcessor
 from .Analysers.PathAnalyser import PathAnalyser
 from .Analysers.PreferenceAnalyser import Preference
-from .IREProcessor import IREProcessor
+from .Comparator.IREProcessor import IREProcessor
 from .Processor.FileProcessor import featureMatrix
-from .PreferenceModule import app as prefapp
+from .AppModule.PreferenceModule import app as prefapp
 
 
 # Global Variables
