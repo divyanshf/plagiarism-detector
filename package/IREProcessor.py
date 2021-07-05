@@ -1,7 +1,8 @@
-from colorama.ansi import Fore, Style
 import numpy as np
 import pandas as pd
 import math as m
+
+import typer
 np.seterr(divide='ignore', invalid='ignore')
 
 
@@ -86,7 +87,7 @@ class IREProcessor:
 
     # Decompose the td-matrix using SVD
     def calculateSVD(self, matrix):
-        U, sigma, Vt = np.linalg.svd(matrix)
+        U, sigma, Vt = np.linalg.svd(matrix, full_matrices=False)
         sigma = np.diag(sigma)
         return U, sigma, Vt
 
@@ -127,18 +128,14 @@ class IREProcessor:
 
         try:
             U, sigma, Vt = self.calculateSVD(matrix)
-            # Reducing dimensions to the shape of sigma
-            # If, k == r, the value is the same as cosine similarity
-            # Limiting the dimensions to 100
-            k = 100 if sigma.shape[0] > 100 else sigma.shape[0]
-            U = self.reduceDimensions(k, U)
-            V = self.reduceDimensions(k, Vt.transpose())
+            V = Vt.transpose()
             val = V.dot(sigma)
             result = val.dot(val.transpose())
             return result
         except:
-            print(Fore.RED + 'Error computing Single Value Decomposition!')
-            print(
-                Fore.CYAN + 'Recalculating similarity using Cosine Factor...' + Style.RESET_ALL)
+            typer.secho('Error computing Single Value Decomposition!',
+                        fg=typer.colors.RED)
+            typer.secho(
+                'Recalculating similarity using Cosine Factor...', fg=typer.colors.CYAN)
             result = matrix.transpose() @ matrix
             return result

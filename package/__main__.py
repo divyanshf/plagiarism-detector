@@ -57,8 +57,8 @@ def calculateSimilarity(files, pcomment):
         simCode = ((100 - commentsWeight) * simCode +
                    commentsWeight * simComment) / 100
 
-    simFeatures = processFeatures(files) * 100
-    simCode = (simCode + simFeatures) / 2
+    # simFeatures = processFeatures(files) * 100
+    # simCode = (simCode + simFeatures) / 2
 
     return simCode
 
