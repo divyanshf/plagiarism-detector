@@ -1,3 +1,4 @@
+import os
 from typing import Optional
 import typer
 import pandas as pd
@@ -141,17 +142,19 @@ def compare(path1: str = typer.Argument(..., help='Path to a file or folder'), p
 # Extract features of the code
 # THE PATH MUST LEAD TO A FILE ONLY!
 @app.command(help='Extract features from source code files.')
-def extract(path: str = typer.Argument(..., help='Path to the file or folder')):
-    analyser = PathAnalyser()
-    filetype, error = analyser.setExtension(path)
-    if filetype:
+def extract(path: str = typer.Argument(..., help='Path to the file or folder'), filetype: str = typer.Option(userpref['filetype'], help='The extension of the files to be processed')):
+    filetype = filetype.lstrip('.')
+    analyser = PathAnalyser(filetype)
+    
+    if os.path.isfile(path):
+        filetype, _ = analyser.setExtension(path)
         fs = (analyser.processPath(path))[0]
         fs.extractFeatures()
         result, features = featureMatrix([fs])
         df = pd.DataFrame(result, columns=[features], index=[fs.filename])
         typer.echo(df)
     else:
-        isDir, errDir = analyser.isDir(path)
+        isDir, _ = analyser.isDir(path)
         if isDir:
             files = analyser.processPath(path)
             # Notify user
