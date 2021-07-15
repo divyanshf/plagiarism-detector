@@ -1,5 +1,5 @@
 import re
-
+import CppHeaderParser as parser
 
 cppDatatypes = ['int', 'char', 'bool',
                 'float', 'double', 'void', 'wchar_t']
@@ -11,11 +11,12 @@ cppVariableGroup = '|'.join(cppDatatypeModifier) + \
 
 # C++ File Processor
 class ProcessorCPP:
-    def __init__(self):
+    def __init__(self, path):
         self.stringPattern = re.compile('\".*?\"', re.DOTALL)
         self.singleCommentPattern = re.compile('//.*\n')
         self.blockCommentPattern = re.compile('/\*(.*?)\*/', re.DOTALL)
         self.variablePattern = re.compile(rf'(?:{cppVariableGroup})\s.*?;')
+        self.parser = parser.CppHeader(path)
 
     # Return the position of strings present in the document
     # Doesnt consider escaped \" inside a string like string = "something \" ."
@@ -100,6 +101,16 @@ class ProcessorCPP:
                 elif (char == ',' or char == ';') and len(stack) == 0:
                     nVariables += 1
         return nVariables
+
+    # Extract functions
+    def extractFunctions(self, file):
+        functions = [f['name'] for f in self.parser.functions]
+        return functions, len(functions)
+
+    # Extract classes
+    def extractClasses(self, file):
+        classes = [c for c in self.parser.classes]
+        return classes, len(classes)
 
     # Check if the declaration is of a variable or a function
     # int sum(int a, int b) || int sum(0)

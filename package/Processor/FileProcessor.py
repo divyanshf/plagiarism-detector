@@ -9,11 +9,12 @@ puncs = string.punctuation
 
 
 class FileStructure:
-    def __init__(self, filename, document, filetype):
+    def __init__(self, filename, document, filetype, path):
         # Basic Features
         self.filename = filename
         self.file = document.read()
         self.filetype = filetype
+        self.path = path
 
         # Strings
         self.stringPos = []
@@ -28,6 +29,14 @@ class FileStructure:
         self.variables = []
         self.variablesPos = []
         self.nVariables = 0
+
+        # Functions
+        self.functions = []
+        self.nFunctions = 0
+
+        # Classes
+        self.classes = []
+        self.nClasses = 0
 
     # Tokenize a file
     def tokenize(self, file):
@@ -101,7 +110,7 @@ class FileStructure:
     def getProcessor(self):
         processor = None
         if self.filetype == '.cpp':
-            processor = ProcessorCPP()
+            processor = ProcessorCPP(self.path)
         return processor
 
     # Extract features
@@ -129,6 +138,13 @@ class FileStructure:
             self.variables, self.variablesPos)
         self.nVariables = processor.countVariables(self.variables)
 
+        # Functions
+        self.functions, self.nFunctions = processor.extractFunctions(self.file)
+
+        # Classes
+        self.classes, self.nClasses = processor.extractClasses(self.file)
+        print(self.functions)
+
     # Process the document
     def processDocument(self):
         self.extractFeatures()
@@ -138,7 +154,8 @@ class FileStructure:
 
 # Create a feature matrix
 def featureMatrix(files):
-    result = np.zeros((len(files), 2))
+    result = np.zeros((len(files), 4))
     for index, fs in enumerate(files):
-        result[index] = np.array([fs.nComments, fs.nVariables])
-    return result, ['#Comments', '#Variables']
+        result[index] = np.array(
+            [fs.nComments, fs.nVariables, fs.nFunctions, fs.nClasses])
+    return result, ['#Comments', '#Variables', '#Functions', '#Classes']

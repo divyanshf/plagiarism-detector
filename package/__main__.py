@@ -65,10 +65,10 @@ def calculateSimilarity(files, pcomment):
                    commentsWeight * simComment) / 100
         sp.printProcessFinal(initial, 'Comments Similarity calculated!')
 
-    initial = sp.printProcessInitial('Calculating feature-based similarity...')
-    simFeatures = processFeatures(files) * 100
-    simCode = (simCode + simFeatures) / 2
-    sp.printProcessFinal(initial, 'Feature-based Similarity calculated!')
+    # initial = sp.printProcessInitial('Calculating feature-based similarity...')
+    # simFeatures = processFeatures(files) * 100
+    # simCode = (simCode + simFeatures) / 2
+    # sp.printProcessFinal(initial, 'Feature-based Similarity calculated!')
 
     return simCode
 
@@ -142,43 +142,21 @@ def compare(path1: str = typer.Argument(..., help='Path to a file or folder'), p
 # Extract features of the code
 # THE PATH MUST LEAD TO A FILE ONLY!
 @app.command(help='Extract features from source code files.')
-def extract(path: str = typer.Argument(..., help='Path to the file or folder'), filetype: str = typer.Option(userpref['filetype'], help='The extension of the files to be processed')):
+def extract(path: str = typer.Argument(..., help='Path to the file'), filetype: str = typer.Option(userpref['filetype'], help='The extension of the files to be processed')):
     filetype = filetype.lstrip('.')
     analyser = PathAnalyser(filetype)
-    
-    if os.path.isfile(path):
-        filetype, _ = analyser.setExtension(path)
+    filetype, error = analyser.setExtension(path)
+
+    if not error:
         fs = (analyser.processPath(path))[0]
         fs.extractFeatures()
         result, features = featureMatrix([fs])
         df = pd.DataFrame(result, columns=[features], index=[fs.filename])
         typer.echo(df)
     else:
-        isDir, _ = analyser.isDir(path)
-        if isDir:
-            files = analyser.processPath(path)
-            # Notify user
-            if len(files) > 0:
-                initial = sp.printProcessInitial('Processing files...')
-            for file in files:
-                # Extract features
-                file.extractFeatures()
-            if len(files) != 0:
-                # Notify user
-                sp.printProcessFinal(initial, 'Files Processed!')
-
-                # Get feature matrix
-                result, features = featureMatrix(files)
-                df = pd.DataFrame(
-                    result, columns=[features], index=[fs.filename for fs in files])
-                typer.echo(df)
-            else:
-                typer.secho('No files found!', fg=typer.colors.RED)
-                raise typer.Exit()
-        else:
-            text = path + ' : Invalid Path!'
-            typer.secho(text, fg=typer.colors.RED)
-            raise typer.Exit()
+        text = path + ' : ' + error
+        typer.secho(text, fg=typer.colors.RED)
+        raise typer.Exit()
 
 
 # Display the version
