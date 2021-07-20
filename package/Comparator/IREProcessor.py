@@ -118,7 +118,7 @@ class IREProcessor:
     def calculateSimilarity(self, matrix):
         matrix = matrix.transpose()
 
-        # Calculate magniture for each document
+        # Normalize document vectors from 0 to 1
         for i in range(matrix.shape[1]):
             magnitude = self.calculateMagnitude(matrix[:, i])
             matrix[:, i] = matrix[:, i] / magnitude

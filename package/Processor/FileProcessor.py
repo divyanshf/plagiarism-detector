@@ -143,7 +143,6 @@ class FileStructure:
 
         # Classes
         self.classes, self.nClasses = processor.extractClasses(self.file)
-        print(self.functions)
 
     # Process the document
     def processDocument(self):

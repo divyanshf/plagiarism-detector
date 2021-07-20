@@ -65,10 +65,10 @@ def calculateSimilarity(files, pcomment):
                    commentsWeight * simComment) / 100
         sp.printProcessFinal(initial, 'Comments Similarity calculated!')
 
-    # initial = sp.printProcessInitial('Calculating feature-based similarity...')
-    # simFeatures = processFeatures(files) * 100
-    # simCode = (simCode + simFeatures) / 2
-    # sp.printProcessFinal(initial, 'Feature-based Similarity calculated!')
+    initial = sp.printProcessInitial('Calculating feature-based similarity...')
+    simFeatures = processFeatures(files) * 100
+    simCode = (simCode + simFeatures) / 2
+    sp.printProcessFinal(initial, 'Feature-based Similarity calculated!')
 
     return simCode
 
