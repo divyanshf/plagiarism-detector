@@ -1,7 +1,8 @@
-import os
 from typing import Optional
+from warnings import simplefilter
 import typer
 import pandas as pd
+import numpy as np
 from .ScreenProcessor.ScreenProcessor import ScreenProcessor
 from .Analysers.PathAnalyser import PathAnalyser
 from .Analysers.PreferenceAnalyser import Preference
@@ -46,31 +47,31 @@ def processFeatures(corpus):
 
 # Calculate similarity
 def calculateSimilarity(files, pcomment):
+    irp = IREProcessor()
     filenames = [doc.filename for doc in files]
 
     corpusCode = [doc.file for doc in files]
     corpusComment = [doc.commentsStr for doc in files]
 
-    initial = sp.printProcessInitial('Calculating textual similarity...')
-    simCode = processCorpus(corpusCode, 'normal')
-    simCode = simCode * 100
-    sp.printProcessFinal(initial, 'Textual similarity calculated!')
+    initial = sp.printProcessInitial('Calculating similarity...')
+    codeMatrix = irp.createTermDocumentMatrix(corpusCode)
+    codeMatrix = irp.applyWeighting(codeMatrix, 'normal')
 
     if pcomment:
-        initial = sp.printProcessInitial('Calculating comments similarity...')
-        commentsWeight = float(userpref['comment_weight'])  # In percentage
-        simComment = processCorpus(corpusComment, 'idf')
-        simComment = simComment * 100
-        simCode = ((100 - commentsWeight) * simCode +
-                   commentsWeight * simComment) / 100
-        sp.printProcessFinal(initial, 'Comments Similarity calculated!')
+        # commentsWeight = float(userpref['comment_weight'])  # In percentage
+        commentMatrix = irp.createTermDocumentMatrix(corpusComment)
+        commentMatrix = irp.applyWeighting(commentMatrix, 'idf')
+        codeMatrix = np.concatenate((codeMatrix, commentMatrix), axis=1)
 
-    initial = sp.printProcessInitial('Calculating feature-based similarity...')
-    simFeatures = processFeatures(files) * 100
-    simCode = (simCode + simFeatures) / 2
-    sp.printProcessFinal(initial, 'Feature-based Similarity calculated!')
+    simCode = irp.calculateSimilarity(codeMatrix)
 
-    return simCode
+    featureMat, _ = featureMatrix(files)
+    simFeatures = irp.calculateSimilarityByEuclideanMethod(featureMat, sigma=1)
+
+    similarity = (0.8 * simCode + 0.2 * simFeatures) * 100
+    sp.printProcessFinal(initial, 'Similarity calculated!')
+
+    return similarity
 
 
 # Detect similarity

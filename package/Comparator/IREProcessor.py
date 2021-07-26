@@ -114,6 +114,17 @@ class IREProcessor:
     def calculateMagnitude(self, vector):
         return m.sqrt(sum(list(map(lambda x: x*x, vector))))
 
+    # Calculate similarity using euclidean distance
+    def calculateSimilarityByEuclideanMethod(self, matrix, sigma):
+        result = np.zeros((matrix.shape[0], matrix.shape[0]))
+        for i in range(matrix.shape[0]):
+            for j in range(matrix.shape[0]):
+                vector = matrix[i] - matrix[j]
+                magnitude = self.calculateMagnitude(vector)
+                result[i, j] = m.exp(-(magnitude ** 2) / (2 * (sigma ** 2)))
+
+        return result
+
     # Calculate the similarity
     def calculateSimilarity(self, matrix):
         matrix = matrix.transpose()
