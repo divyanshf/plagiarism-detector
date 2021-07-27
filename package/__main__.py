@@ -91,12 +91,18 @@ def compare(path1: str = typer.Argument(..., help='Path to a file or folder'), p
         isDir, error = analyser.isDir(path1)
         if isDir:
             files = analyser.processPath(path1)
+            filesUpdated = []
             # Notify user
             if len(files) > 0:
                 initial = sp.printProcessInitial('Processing files...')
             # Process features
             for file in files:
-                file.processDocument()
+                err = file.processDocument()
+                if err:
+                    text = file.filename + ' : Invalid File!'
+                    typer.secho(text, fg=typer.colors.RED)
+                else:
+                    filesUpdated.append(file)
             # Notify user
             if len(files) > 0:
                 sp.printProcessFinal(initial, 'Files Processed!')
@@ -109,14 +115,20 @@ def compare(path1: str = typer.Argument(..., help='Path to a file or folder'), p
         filetype, error = analyser.setExtension(path1)
         if filetype:
             files = analyser.processPath(path1) + analyser.processPath(path2)
+            filesUpdated = []
             # Notify user
             if len(files) > 0:
                 initial = sp.printProcessInitial('Processing files...')
             # Process features
             for file in files:
-                file.processDocument()
+                err = file.processDocument()
+                if err:
+                    text = file.filename + ' : Invalid File!'
+                    typer.secho(text, fg=typer.colors.RED)
+                else:
+                    filesUpdated.append(file)
             # Notify user
-            if len(files) > 0:
+            if len(filesUpdated) > 0:
                 sp.printProcessFinal(initial, 'Files Processed!')
             isDir2, error = analyser.isDir(path2)
             if isDir2:
@@ -129,12 +141,12 @@ def compare(path1: str = typer.Argument(..., help='Path to a file or folder'), p
     # Two ways to represent
     # (FOLDER) and (FILE-FILE)  => BINARY
     # (FILE-FOLDER)  => DATAFRAME
-    if len(files) != 0:
-        result = calculateSimilarity(files, pcomment)
+    if len(filesUpdated) != 0:
+        result = calculateSimilarity(filesUpdated, pcomment)
         if rep == 'b':
-            sp.representBinary(result, files, [path1, path2])
+            sp.representBinary(result, filesUpdated, [path1, path2])
         else:
-            sp.representPrimary(result, files, [path1, path2])
+            sp.representPrimary(result, filesUpdated, [path1, path2])
     else:
         text = 'No .' + filetype + ' files found!'
         typer.secho(text, fg=typer.colors.RED)
@@ -150,7 +162,11 @@ def extract(path: str = typer.Argument(..., help='Path to the file'), filetype: 
 
     if not error:
         fs = (analyser.processPath(path))[0]
-        fs.extractFeatures()
+        err = fs.extractFeatures()
+        if err:
+            text = fs.filename + ' : Invalid File!'
+            typer.secho(text, fg=typer.colors.RED)
+            raise typer.Exit()
         result, features = featureMatrix([fs])
         df = pd.DataFrame(result, columns=[features], index=[fs.filename])
         typer.echo(df)

@@ -115,40 +115,47 @@ class FileStructure:
 
     # Extract features
     def extractFeatures(self):
-        processor = self.getProcessor()
-        if processor == None:
-            text = self.filetype + ' are not supported yet!'
-            typer.secho(text, fg=typer.colors.RED)
-            raise typer.Exit()
+        try:
+            processor = self.getProcessor()
+            if processor == None:
+                text = self.filetype + ' are not supported yet!'
+                typer.secho(text, fg=typer.colors.RED)
+                raise typer.Exit()
 
-        # Comments Processing
-        self.comments, self.commentsPos = processor.extractComments(self.file)
-        self.nComments = len(self.comments)
-        self.file = self.removeComments(self.commentsPos, self.file)
+            # Comments Processing
+            self.comments, self.commentsPos = processor.extractComments(
+                self.file)
+            self.nComments = len(self.comments)
+            self.file = self.removeComments(self.commentsPos, self.file)
 
-        # Process strings after removing comments
-        self.stringPos = processor.extractStringPositions(self.file)
+            # Process strings after removing comments
+            self.stringPos = processor.extractStringPositions(self.file)
 
-        # Variable Processing
-        self.variables, self.variablesPos = processor.extractVariables(
-            self.file)
-        self.variables, self.variablesPos = self.checkStringExclusive(
-            self.variables, self.variablesPos, self.stringPos)
-        self.variables, self.variablesPos = processor.checkVariableDeclarations(
-            self.variables, self.variablesPos)
-        self.nVariables = processor.countVariables(self.variables)
+            # Variable Processing
+            self.variables, self.variablesPos = processor.extractVariables(
+                self.file)
+            self.variables, self.variablesPos = self.checkStringExclusive(
+                self.variables, self.variablesPos, self.stringPos)
+            self.variables, self.variablesPos = processor.checkVariableDeclarations(
+                self.variables, self.variablesPos)
+            self.nVariables = processor.countVariables(self.variables)
 
-        # Functions
-        self.functions, self.nFunctions = processor.extractFunctions(self.file)
+            # Functions
+            self.functions, self.nFunctions = processor.extractFunctions(
+                self.file)
 
-        # Classes
-        self.classes, self.nClasses = processor.extractClasses(self.file)
+            # Classes
+            self.classes, self.nClasses = processor.extractClasses(self.file)
+            return None
+        except Exception as ex:
+            return str(ex)
 
     # Process the document
     def processDocument(self):
-        self.extractFeatures()
+        err = self.extractFeatures()
         self.file = self.tokenize(self.file)
         self.commentsStr = self.tokenize(''.join(self.comments))
+        return err
 
 
 # Create a feature matrix
