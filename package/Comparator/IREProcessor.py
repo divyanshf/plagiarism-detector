@@ -88,12 +88,23 @@ class IREProcessor:
     def calculateSVD(self, matrix):
         U, sigma, Vt = np.linalg.svd(matrix, full_matrices=False)
         sigma = np.diag(sigma)
-        return U, sigma, Vt
+        optimalU = U
+        optimalSigma = sigma
+        optimalVt = Vt
+        for k in range(1, sigma.shape[0]):
+            U_new, sigma_new, Vt_new = self.reduceDimensions(k, U, sigma, Vt)
+            error = 1 - (np.trace(sigma_new) / np.trace(sigma))
+            if error <= 0.01:
+                optimalU, optimalSigma, optimalVt = U_new, sigma_new, Vt_new
+                break
+        return optimalU, optimalSigma, optimalVt
 
     # Reduce dimension of the matrix
-    def reduceDimensions(self, k, matrix):
-        reducedMatrix = matrix[:, :k]
-        return reducedMatrix
+    def reduceDimensions(self, k, U, sigma, Vt):
+        U = U[:, :k]
+        sigma = sigma[:k, :k]
+        Vt = Vt[:k, :]
+        return U, sigma, Vt
 
     # Create a matrix from list of dictionary
     def convertDictToMatrix(self, freqList):
@@ -142,7 +153,8 @@ class IREProcessor:
             val = V.dot(sigma)
             result = val.dot(val.transpose())
             return result
-        except:
+        except Exception as ex:
+            typer.echo(str(ex))
             typer.secho('Error computing Single Value Decomposition!',
                         fg=typer.colors.RED)
             typer.secho(
