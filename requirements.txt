@@ -2,3 +2,4 @@ typer
 numpy
 pandas
 nltk
+CppHeaderParser

@@ -1,6 +1,5 @@
-from typing import Optional
-from warnings import simplefilter
 import typer
+from typing import Optional
 import pandas as pd
 import numpy as np
 from .ScreenProcessor.ScreenProcessor import ScreenProcessor
