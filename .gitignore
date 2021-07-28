@@ -9,3 +9,4 @@ eggs/
 *.egg
 
 /tests
+.pytest_cache
