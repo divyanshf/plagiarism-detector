@@ -3,6 +3,7 @@ import numpy as np
 from nltk import PorterStemmer
 import string
 from .ProcessorCPP import ProcessorCPP
+from .ProcessorJAVA import ProcessorJAVA
 
 ps = PorterStemmer()
 puncs = string.punctuation
@@ -111,6 +112,8 @@ class FileStructure:
         processor = None
         if self.filetype == '.cpp':
             processor = ProcessorCPP(self.path)
+        elif self.filetype == '.java':
+            processor = ProcessorJAVA(self.path)
         return processor
 
     # Extract features
@@ -132,13 +135,8 @@ class FileStructure:
             self.stringPos = processor.extractStringPositions(self.file)
 
             # Variable Processing
-            self.variables, self.variablesPos = processor.extractVariables(
-                self.file)
-            self.variables, self.variablesPos = self.checkStringExclusive(
-                self.variables, self.variablesPos, self.stringPos)
-            self.variables, self.variablesPos = processor.checkVariableDeclarations(
-                self.variables, self.variablesPos)
-            self.nVariables = processor.countVariables(self.variables)
+            self.variables, self.nVariables = processor.extractVariables(
+                self.file, stringPos=self.stringPos)
 
             # Functions
             self.functions, self.nFunctions = processor.extractFunctions(

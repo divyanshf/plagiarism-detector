@@ -68,12 +68,44 @@ class ProcessorCPP:
         return comments, commentsPos
 
     # Regex to find variables in the code
-    def extractVariables(self, doc):
+    def extractVariables(self, doc, stringPos):
         declarations = re.findall(self.variablePattern, doc)
         declarationsPos = [(m.start(), m.end() - 1)
                            for m in re.finditer(self.variablePattern, doc)]
 
-        return declarations, declarationsPos
+        declarations, declarationsPos = self.checkStringExclusive(
+            declarations, declarationsPos, stringPos)
+
+        declarations, declarationsPos = self.checkVariableDeclarations(
+            declarations, declarationsPos)
+
+        nDeclarations = self.countVariables(declarations)
+
+        return declarations, nDeclarations
+
+    # Check if a value is inside a string in the code
+    def checkStringExclusive(self, values, valueIndices, stringPos):
+        result = [True for i in range(len(values))]
+        for index in range(len(values)):
+            valueIndex = valueIndices[index]
+            for pos in stringPos:
+                start = pos[0]
+                end = pos[1]
+                # Completely inside the string
+                cond1 = start < valueIndex[0] and end > valueIndex[1]
+                # Second half partially inside the string
+                cond2 = start < valueIndex[0] and (
+                    end < valueIndex[1] and start < valueIndex[1])
+                # First half partially inside the string
+                cond3 = start > valueIndex[0] and (
+                    end > valueIndex[1] and start < valueIndex[1])
+                if cond1 or cond2 or cond3:
+                    result[index] = False
+        values = [value for index, value in enumerate(
+            values) if result[index]]
+        valueIndices = [valueIndex for index,
+                        valueIndex in enumerate(valueIndices) if result[index]]
+        return values, valueIndices
 
     # Check variable declaration for function definitons
     def checkVariableDeclarations(self, declarations, declarationsPos):
