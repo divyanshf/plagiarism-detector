@@ -4,6 +4,7 @@ from nltk import PorterStemmer
 import string
 from .ProcessorCPP import ProcessorCPP
 from .ProcessorJAVA import ProcessorJAVA
+from .ProcessorPY import ProcessorPY
 
 ps = PorterStemmer()
 puncs = string.punctuation
@@ -112,6 +113,8 @@ class FileStructure:
         processor = None
         if self.filetype == '.cpp':
             processor = ProcessorCPP(self.path)
+        elif self.filetype == '.py':
+            processor = ProcessorPY(self.path)
         elif self.filetype == '.java':
             processor = ProcessorJAVA(self.path)
         return processor
@@ -131,18 +134,18 @@ class FileStructure:
             self.nComments = len(self.comments)
             self.file = self.removeComments(self.commentsPos, self.file)
 
-            # Process strings after removing comments
+            # # Process strings after removing comments
             self.stringPos = processor.extractStringPositions(self.file)
 
-            # Variable Processing
+            # # Variable Processing
             self.variables, self.nVariables = processor.extractVariables(
                 self.file, stringPos=self.stringPos)
 
-            # Functions
+            # # Functions
             self.functions, self.nFunctions = processor.extractFunctions(
                 self.file)
 
-            # Classes
+            # # Classes
             self.classes, self.nClasses = processor.extractClasses(self.file)
             return None
         except Exception as ex:

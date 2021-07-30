@@ -163,7 +163,7 @@ def extract(path: str = typer.Argument(..., help='Path to the file'), filetype: 
         fs = (analyser.processPath(path))[0]
         err = fs.extractFeatures()
         if err:
-            text = fs.filename + ' : Invalid File!'
+            text = fs.filename + ' : ' + err
             typer.secho(text, fg=typer.colors.RED)
             raise typer.Exit()
         result, features = featureMatrix([fs])

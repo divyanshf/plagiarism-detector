@@ -3,7 +3,7 @@ import plyj.parser as plyj
 import plyj.model as model
 
 
-# C++ File Processor
+# Java File Processor
 class ProcessorJAVA:
     def __init__(self, path):
         self.stringPattern = re.compile('\".*?\"', re.DOTALL)
