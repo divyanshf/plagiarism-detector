@@ -55,14 +55,15 @@ def calculateSimilarity(files, pcomment):
     initial = sp.printProcessInitial('Calculating similarity...')
     codeMatrix = irp.createTermDocumentMatrix(corpusCode)
     codeMatrix = irp.applyWeighting(codeMatrix, 'normal')
+    simCode = irp.calculateSimilarity(codeMatrix)
 
     if pcomment:
-        # commentsWeight = float(userpref['comment_weight'])  # In percentage
+        commentsWeight = float(userpref['comment_weight'])  # In percentage
         commentMatrix = irp.createTermDocumentMatrix(corpusComment)
         commentMatrix = irp.applyWeighting(commentMatrix, 'idf')
-        codeMatrix = np.concatenate((codeMatrix, commentMatrix), axis=1)
-
-    simCode = irp.calculateSimilarity(codeMatrix)
+        simComments = irp.calculateSimilarity(commentMatrix)
+        simCode = ((commentsWeight * simComments) +
+                   (100 - commentsWeight) * simCode) / 100
 
     featureMat, _ = featureMatrix(files)
     simFeatures = irp.calculateSimilarityByEuclideanMethod(featureMat, sigma=1)

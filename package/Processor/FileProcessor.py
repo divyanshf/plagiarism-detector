@@ -158,8 +158,8 @@ class FileStructure:
 
 # Create a feature matrix
 def featureMatrix(files):
-    result = np.zeros((len(files), 4))
+    result = np.zeros((len(files), 3))
     for index, fs in enumerate(files):
         result[index] = np.array(
-            [fs.nComments, fs.nVariables, fs.nFunctions, fs.nClasses])
-    return result, ['#Comments', '#Variables', '#Functions', '#Classes']
+            [fs.nVariables, fs.nFunctions, fs.nClasses])
+    return result, ['#Variables', '#Functions', '#Classes']
