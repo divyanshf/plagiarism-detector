@@ -61,7 +61,8 @@ def calculateSimilarity(files, pcomment):
         commentsWeight = float(userpref['comment_weight'])  # In percentage
         commentMatrix = irp.createTermDocumentMatrix(corpusComment)
         commentMatrix = irp.applyWeighting(commentMatrix, 'idf')
-        simComments = irp.calculateSimilarity(commentMatrix)
+        simComments = irp.calculateSimilarityByEuclideanMethod(
+            commentMatrix, sigma=0.3)
         simCode = ((commentsWeight * simComments) +
                    (100 - commentsWeight) * simCode) / 100
 
