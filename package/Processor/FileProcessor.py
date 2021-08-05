@@ -98,8 +98,8 @@ class FileStructure:
     # Remove the comments from the original file
     def removeComments(self, commentsPos, doc):
         for i in range(len(commentsPos)):
-            doc = doc[:(commentsPos[i][0] - 1)] + \
-                '' + doc[(commentsPos[i][1] + 1):]
+            doc = doc[:(commentsPos[i][0])] + \
+                '' + doc[(commentsPos[i][1] + 2):]
             diff = commentsPos[i][1] - commentsPos[i][0] + 2
             for j in range(i+1, len(commentsPos)):
                 commentsPos[j] = (commentsPos[j][0] -
@@ -112,8 +112,6 @@ class FileStructure:
         processor = None
         if self.filetype == '.cpp':
             processor = ProcessorCPP(self.path)
-        # elif self.filetype == '.py':
-        #     processor = ProcessorPY(self.path)
         elif self.filetype == '.java':
             processor = ProcessorJAVA(self.path)
         return processor
