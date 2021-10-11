@@ -1,44 +1,65 @@
 # Plag
-A CLI Application to detect plagiarism in Source Code Files.
+
+## Description
+A CLI Application to detect plagiarism in **Source Code Files**.
+
+
+## Features
+- Compare source code files for plagiarism.
+- Extract code features from a file.
+- Language support for C++ and Java.
+- Cross-platform compatibilty.
+- User customizability.
+
+## Technologies / Libraries Used
+- [Python](https://www.python.org/)
+- [Numpy](https://numpy.org/)
+- [Pandas](https://pandas.pydata.org/)
+- [Typer](https://typer.tiangolo.com/)
+- [NLTK](https://www.nltk.org/)
+- [CppHeaderParser](https://pypi.org/project/CppHeaderParser/)
+- [PlyJ](https://github.com/musiKk/plyj)
 
 ## Prerequisites
-- [Python >= v3.0](https://www.python.org/)
+- [Python](https://www.python.org/) (version >= 3.0)
 
 ## Installation
 - Clone this repository.
-- Run the following in the terminal.
-```
-cd <path_to_repository>
-python setup.py install
-```
-This will install the package on your local system.
+- Change the current directory to the repository
+  ```
+  cd <path_to_repository>
+  ```
+- Install the python package
+  ```
+  python setup.py install
+  ```
 
-## Commands
+## Usage
 - Check the version of Plag.
-```
-plag --version
-```
+  ```
+  plag --version
+  ```
 - Comparing Source Code Files for similarity.
-```
-plag compare ../data/file1.cpp ../data --filetype cpp 
-```
+  ```
+  plag compare ../data/file1.cpp ../data --filetype cpp 
+  ```
 - Extracting features of a Source Code file.
-```
-plag extract ../data/file1.cpp
-```
+  ```
+  plag extract ../data/file1.cpp
+  ```
 - Handling user preferences
   - Show current preferences
-  ```
-  plag preference show
-  ```
+    ```
+    plag preference show
+    ```
   - Set a preference
-  ```
-  plag preference set filetype py
-  ```
+    ```
+    plag preference set filetype py
+    ```
   - Reset all preferences
-  ```
-  plag preference reset
-  ```
+    ```
+    plag preference reset
+    ```
 
-## Issues
-- In case of permission errors, try running the terminal as administrator.
+## Common Issues
+- In case of permission errors, try running the application as administrator.
