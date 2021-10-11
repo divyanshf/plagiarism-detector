@@ -47,19 +47,23 @@ A CLI Application to detect plagiarism in **Source Code Files**.
   ```
   plag extract ../data/file1.cpp
   ```
-- Handling user preferences
-  - Show current preferences
-    ```
-    plag preference show
-    ```
-  - Set a preference
-    ```
-    plag preference set filetype py
-    ```
-  - Reset all preferences
-    ```
-    plag preference reset
-    ```
+- Show current preferences
+  ```
+  plag preference show
+  ```
+- Set a preference.
+  ```
+  plag preference set filetype py
+  ```
+- Reset all preferences
+  ```
+  plag preference reset
+  ```
+*NOTE* : The preferences currently supported are
+  - filetype
+  - threshold
+  - result_path
+  - comment_weight
 
 ## Common Issues
 - In case of permission errors, try running the application as administrator.
