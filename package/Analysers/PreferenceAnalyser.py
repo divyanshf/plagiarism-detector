@@ -49,7 +49,7 @@ class Preference:
                     typer.secho('Path does not exist!', fg=typer.colors.RED)
                     raise typer.Exit()
             elif key == 'filetype':
-                if value == 'cpp':
+                if value == 'cpp' or value == 'java':
                     return True
                 else:
                     typer.secho('Unsupported filetype!',
@@ -75,11 +75,11 @@ class Preference:
     # Get preference path for platform
     def getPreferencePath(self):
         if sys.platform == 'linux':
-            return self.home / '.conifg/plag'
+            return self.home / '.config' / 'plag'
         elif sys.platform == 'win32':
-            return self.home / 'AppData/plag'
+            return self.home / 'AppData' / 'plag'
         elif sys.platform == 'darwin':
-            return self.home / 'Library/Application Support/plag'
+            return self.home / 'Library' / 'Application Support' / 'plag'
         else:
             typer.secho('Platform not supported yet!', fg=typer.colors.RED)
             raise typer.Exit()
@@ -101,6 +101,12 @@ class Preference:
     def createPreferences(self, path, userpref):
         prefs = ''
         for key, value in userpref.items():
+            if(key == 'result_path'):
+                try:
+                    value = os.path.abspath(value)
+                except:
+                    typer.secho(str("Invalid value"), fg=typer.colors.RED)
+                    raise typer.Exit()
             prefs += key+'='+value+'\n'
         if not os.path.exists(path):
             os.makedirs(path)

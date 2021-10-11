@@ -1,6 +1,7 @@
 import typer
 import datetime
 import os
+import pathlib
 import pandas as pd
 import numpy as np
 
@@ -26,14 +27,15 @@ class ScreenProcessor:
         timestamp = datetime.datetime.now()
         date = timestamp.strftime("%Y-%m-%d")
         time = timestamp.strftime("%I-%M-%S %p")
-        basepath = self.userpref['result_path'] + '\\' + date + '\\' + time
+        result_path = pathlib.Path(self.userpref['result_path'])
+        basepath = result_path / date / time
         try:
             if not(os.path.exists(basepath)):
                 os.makedirs(basepath)
             # os.chmod(path, stat.S_IRWXO)
-            path = basepath + '\\' + 'result.csv'
+            path = basepath / 'result.csv'
             dataframe.to_csv(path)
-            with open(basepath + '\\readme.txt', 'w') as file:
+            with open(basepath / 'readme.txt', 'w') as file:
                 text = ''
                 for path in paths:
                     if path:
@@ -43,7 +45,7 @@ class ScreenProcessor:
                     text = text + key + ' : ' + value + '\n'
                 file.write(text)
                 file.close()
-            result = 'Saved to ' + basepath
+            result = 'Saved to ' + str(basepath)
             typer.secho(result, fg=typer.colors.GREEN)
         except Exception as ex:
             typer.secho(str(ex), fg=typer.colors.RED)
